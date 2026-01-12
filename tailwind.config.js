@@ -10,6 +10,7 @@ module.exports = {
         background: 'var(--background)',
         foreground: 'var(--foreground)',
         border: 'var(--border)',
+        muted: 'var(--muted)',
         'muted-foreground': 'var(--muted-foreground)',
       },
       fontFamily: {

@@ -130,7 +130,7 @@ function Talks(props: {
           link
         </a>
       </div>
-      <p>{props.title}</p>
+      <p className='font-medium'>{props.title}</p>
     </div>
   )
 }
@@ -152,7 +152,7 @@ function Tab(props: { value: string; title: string; number: React.ReactNode }) {
     <Tabs.Trigger value={props.value} asChild>
       <h2 className='text-sm data-[state=inactive]:text-muted-foreground cursor-pointer flex items-center gap-1.5'>
         <span>{props.title}</span>
-        <span className='text-[10px] text-muted-foreground rounded-full bg-neutral-800 border-[0.5px] border-neutral-700 leading-[10px] px-1 py-0.5'>
+        <span className='text-[10px] text-muted-foreground rounded-full bg-muted border-[0.5px] border-border leading-[10px] px-1 py-0.5'>
           {props.number}{' '}
         </span>
       </h2>
