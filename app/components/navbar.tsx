@@ -1,8 +1,9 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
-import Link from 'next/link'
 import { CaretDoubleRightIcon } from '@phosphor-icons/react/dist/ssr/CaretDoubleRight'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { cn } from 'utils/class'
 import { Nav } from './nav'
 import { ThemeToggle } from './theme-toggle'
 
@@ -23,7 +24,10 @@ export function NavBar() {
         <div className='space-y-1'>
           {navItems.map((item) => (
             <Link key={item.href} href={item.href}>
-              <Nav className='flex items-center gap-1'>
+              <Nav
+                className='flex items-center gap-1'
+                data-state={isActive(item.href) ? 'active' : 'inactive'}
+              >
                 {isActive(item.href) && (
                   <CaretDoubleRightIcon size={12} className='text-orange-500' />
                 )}

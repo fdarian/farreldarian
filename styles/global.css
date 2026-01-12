@@ -5,7 +5,7 @@
 @layer base {
   :root {
     --foreground: theme("colors.stone.950");
-    --muted-foreground: theme("colors.stone.700");
+    --muted-foreground: theme("colors.stone.600");
     --muted: theme("colors.stone.200");
     --background: theme("colors.stone.50");
     --border: theme("colors.stone.300");

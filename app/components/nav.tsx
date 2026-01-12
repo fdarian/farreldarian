@@ -8,7 +8,7 @@ export function Nav({
   return (
     <nav
       className={cn(
-        'text-sm text-muted-foreground hover:text-foreground cursor-pointer',
+        'text-sm text-foreground data-[state=inactive]:text-muted-foreground hover:text-foreground cursor-pointer',
         className
       )}
       {...rest}
