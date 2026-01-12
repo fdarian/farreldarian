@@ -1,10 +1,8 @@
 import '@styles/global.css'
-import { CaretDoubleRightIcon } from '@phosphor-icons/react/dist/ssr/CaretDoubleRight'
 import { Analytics } from '@vercel/analytics/react'
 import type { Metadata } from 'next'
 import { Lora } from 'next/font/google'
-import { Nav } from './components/nav'
-import { ThemeToggle } from './components/theme-toggle'
+import { NavBar } from './components/navbar'
 import { Providers } from './providers'
 
 export const metadata: Metadata = {
@@ -39,22 +37,3 @@ export default function RootLayout({
   )
 }
 
-function NavBar() {
-  return (
-    <div className='space-y-2'>
-      <div className='flex justify-between'>
-        <div className='space-y-1'>
-          <Nav className='flex items-center gap-1'>
-            <CaretDoubleRightIcon size={12} className='text-orange-500' />
-            Bio
-          </Nav>
-        </div>
-
-        <div className='self-end flex items-center gap-2'>
-          <ThemeToggle />
-        </div>
-      </div>
-      <div className='w-full h-[0.5px] bg-border' />
-    </div>
-  )
-}
