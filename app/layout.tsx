@@ -3,6 +3,7 @@ import { Analytics } from '@vercel/analytics/react'
 import type { Metadata } from 'next'
 import { Lora } from 'next/font/google'
 import { NavBar } from './components/navbar'
+import { SourceLink } from './components/source'
 import { Providers } from './providers'
 
 export const metadata: Metadata = {
@@ -30,10 +31,15 @@ export default function RootLayout({
               {children}
             </div>
           </main>
+
+          <footer className='py-5 border-t-[0.5px] border-border'>
+            <div className='sm:max-w-lg sm:mx-auto flex justify-center'>
+              <SourceLink />
+            </div>
+          </footer>
           <Analytics />
         </Providers>
       </body>
     </html>
   )
 }
-
