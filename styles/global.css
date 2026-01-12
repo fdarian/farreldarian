@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --foreground: theme("colors.stone.950");
+    --muted-foreground: theme("colors.stone.700");
+    --background: theme("colors.stone.50");
+    --border: theme("colors.stone.300");
+  }
+
+  .dark {
+    --foreground: theme("colors.neutral.100");
+    --muted-foreground: theme("colors.neutral.400");
+    --background: theme("colors.neutral.900");
+    --border: theme("colors.neutral.700");
+  }
+}

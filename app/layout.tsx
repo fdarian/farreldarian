@@ -1,13 +1,18 @@
 import '@styles/global.css'
+import { CaretDoubleRightIcon } from '@phosphor-icons/react/dist/ssr/CaretDoubleRight'
 import { Analytics } from '@vercel/analytics/react'
-import { Assistant } from 'next/font/google'
+import type { Metadata } from 'next'
+import { Lora } from 'next/font/google'
+import { Nav } from './components/nav'
+import { ThemeToggle } from './components/theme-toggle'
+import { Providers } from './providers'
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Farrel Darian',
   description: 'Crafting interfaces that abstract complexity',
 }
 
-const assistant = Assistant({ variable: '--font-sans', subsets: ['latin'] })
+const lora = Lora({ variable: '--font-serif' })
 
 export default function RootLayout({
   children,
@@ -15,17 +20,41 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang='en'>
+    <html lang='en' suppressHydrationWarning>
       <body
-        className={`${assistant.variable} font-sans text-zinc-950 bg-zinc-50`}
+        className={`${lora.variable} font-serif font-light text-foreground bg-background`}
       >
-        {children}
-        <Analytics />
+        <Providers>
+          <main className='min-h-screen p-6'>
+            <div className='sm:max-w-lg sm:mx-auto space-y-8'>
+              <NavBar />
+
+              {children}
+            </div>
+          </main>
+          <Analytics />
+        </Providers>
       </body>
     </html>
   )
 }
 
-function _getCurrentYear() {
-  return new Date().getFullYear()
+function NavBar() {
+  return (
+    <div className='space-y-2'>
+      <div className='flex justify-between'>
+        <div className='space-y-1'>
+          <Nav className='flex items-center gap-1'>
+            <CaretDoubleRightIcon size={12} className='text-orange-500' />
+            Bio
+          </Nav>
+        </div>
+
+        <div className='self-end flex items-center gap-2'>
+          <ThemeToggle />
+        </div>
+      </div>
+      <div className='w-full h-[0.5px] bg-border' />
+    </div>
+  )
 }
