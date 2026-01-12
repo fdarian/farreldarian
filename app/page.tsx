@@ -7,7 +7,7 @@ export default function IndexPage() {
   return (
     <>
       <section className='space-y-4'>
-        <p className='font-serif text-lg'>
+        <p className='font-serif text-lg font-medium'>
           Farrel Darian, compulsive builder, engineer. / Currently exploring how
           philosophical principles guide the design of intelligent systems.
         </p>
@@ -142,7 +142,7 @@ function Experience(props: { place: string; year?: string; title: string }) {
         <p>— {props.place}</p>
         <p>{props.year}</p>
       </div>
-      <p>{props.title}</p>
+      <p className='font-medium'>{props.title}</p>
     </div>
   )
 }
