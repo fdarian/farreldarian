@@ -34,3 +34,7 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# build artifacts
+tsconfig.tsbuildinfo
+pnpm-lock.yaml

@@ -20,12 +20,12 @@ export default function RootLayout({
         className={`${assistant.variable} font-sans text-zinc-950 bg-zinc-50`}
       >
         {children}
+        <Analytics />
       </body>
-      <Analytics />
     </html>
   )
 }
 
-function getCurrentYear() {
+function _getCurrentYear() {
   return new Date().getFullYear()
 }

@@ -1,8 +1,4 @@
-import {
-  HTMLAttributes,
-  type AnchorHTMLAttributes,
-  type ReactNode,
-} from 'react'
+import type { AnchorHTMLAttributes, HTMLAttributes, ReactNode } from 'react'
 import ArrowUpRight from './ArrowUpRight'
 
 export default function IndexPage() {

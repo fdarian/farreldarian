@@ -1,4 +1,4 @@
-import { type SVGProps } from 'react'
+import type { SVGProps } from 'react'
 
 export default function ArrowUpRight(props: SVGProps<SVGSVGElement>) {
   return (
@@ -14,8 +14,9 @@ export default function ArrowUpRight(props: SVGProps<SVGSVGElement>) {
       stroke-linejoin='round'
       {...props}
     >
-      <line x1='7' y1='17' x2='17' y2='7'></line>
-      <polyline points='7 7 17 7 17 17'></polyline>
+      <title>External link</title>
+      <line x1='7' y1='17' x2='17' y2='7' />
+      <polyline points='7 7 17 7 17 17' />
     </svg>
   )
 }
