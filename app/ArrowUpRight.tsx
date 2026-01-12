@@ -9,9 +9,9 @@ export default function ArrowUpRight(props: SVGProps<SVGSVGElement>) {
       viewBox='0 0 24 24'
       fill='none'
       stroke='currentColor'
-      stroke-width='1'
-      stroke-linecap='round'
-      stroke-linejoin='round'
+      strokeWidth='1'
+      strokeLinecap='round'
+      strokeLinejoin='round'
       {...props}
     >
       <title>External link</title>
