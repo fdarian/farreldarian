@@ -40,12 +40,46 @@ export default function IndexPage() {
         </Link>
       </section>
 
-      <Tabs.Root defaultValue='talks' defaultChecked asChild>
+      <Tabs.Root defaultValue='projects' defaultChecked asChild>
         <section className='space-y-2'>
           <Tabs.List className='flex items-center gap-3'>
+            <Tab title='Projects' value='projects' number='5' />
             <Tab title='Experience' value='exp' number={<ExpNumber />} />
             <Tab title='Talks' value='talks' number='2' />
           </Tabs.List>
+
+          <Tabs.Content value='projects' className='space-y-4'>
+            <Project
+              name='better-pm'
+              href='https://github.com/fdarian/better-pm'
+              status='soft launch'
+              description='Shortcut package manager CLI for all projects, replacing switching between pnpm and bun'
+            />
+            <Project
+              name='agent-dash'
+              href='https://github.com/fdarian/agent-dash'
+              status='soft launch'
+              description='Easier way to manage multiple Claude Code sessions'
+            />
+            <Project
+              name='tmux-sessions'
+              href='https://github.com/fdarian/tmux-sessions'
+              status='soft launch'
+              description='A better default tmux session switcher, batteries included'
+            />
+            <Project
+              name='ff'
+              href='https://github.com/fdarian/ff'
+              status='experimental'
+              description='A set of reusable utilities, covering AI SDK and Effect TS'
+            />
+            <Project
+              name='lazygit.nvim'
+              href='https://github.com/fdarian/lazygit.nvim'
+              status='launched'
+              description='Lazygit integration in Neovim that works as expected'
+            />
+          </Tabs.Content>
 
           <Tabs.Content value='talks' className='space-y-4'>
             <Talks
@@ -103,6 +137,30 @@ export default function IndexPage() {
         </Link>
       </Section>*/}
     </>
+  )
+}
+
+function Project(props: {
+  name: string
+  href: string
+  status: 'launched' | 'soft launch' | 'experimental'
+  description: string
+}) {
+  return (
+    <div>
+      <div className='flex items-center gap-3 text-sm text-muted-foreground'>
+        <a
+          href={props.href}
+          target='_blank'
+          rel='noopener noreferrer'
+          className='border-b border-border hover:border-foreground transition-colors ease-out duration-100'
+        >
+          {props.name}
+        </a>
+        <span>{props.status}</span>
+      </div>
+      <p className='font-medium'>{props.description}</p>
+    </div>
   )
 }
 
