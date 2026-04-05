@@ -1,5 +1,6 @@
 import '@styles/global.css'
 import { Analytics } from '@vercel/analytics/react'
+import { Agentation } from 'agentation'
 import type { Metadata } from 'next'
 import { Lora } from 'next/font/google'
 import { NavBar } from './components/navbar'
@@ -38,6 +39,7 @@ export default function RootLayout({
             </div>
           </footer>
           <Analytics />
+          {process.env.NODE_ENV === 'development' && <Agentation />}
         </Providers>
       </body>
     </html>
