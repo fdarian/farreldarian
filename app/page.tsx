@@ -1,7 +1,5 @@
 import * as Tabs from '@radix-ui/react-tabs'
-import dynamic from 'next/dynamic'
 import type { AnchorHTMLAttributes } from 'react'
-import { ExpNumber } from './components/exp-client'
 
 export default function IndexPage() {
   return (
@@ -44,7 +42,7 @@ export default function IndexPage() {
         <section className='space-y-2'>
           <Tabs.List className='flex items-center gap-3'>
             <Tab title='Projects' value='projects' number='5' />
-            <Tab title='Experience' value='exp' number={<ExpNumber />} />
+            <Tab title='Experience' value='exp' number={`${new Date().getUTCFullYear() - 2021}y`} />
             <Tab title='Talks' value='talks' number='2' />
           </Tabs.List>
 
@@ -207,13 +205,14 @@ function Experience(props: { place: string; year?: string; title: string }) {
 
 function Tab(props: { value: string; title: string; number: React.ReactNode }) {
   return (
-    <Tabs.Trigger value={props.value} asChild>
-      <h2 className='text-sm data-[state=inactive]:text-muted-foreground cursor-pointer flex items-center gap-1.5'>
-        <span>{props.title}</span>
-        <span className='text-[10px] text-muted-foreground rounded-full bg-muted border-[0.5px] border-border leading-[10px] px-1 py-0.5'>
-          {props.number}{' '}
-        </span>
-      </h2>
+    <Tabs.Trigger
+      value={props.value}
+      className='text-sm data-[state=inactive]:text-muted-foreground cursor-pointer flex items-center gap-1.5'
+    >
+      <span>{props.title}</span>
+      <span className='text-[10px] text-muted-foreground rounded-full bg-muted border-[0.5px] border-border leading-[10px] px-1 py-0.5'>
+        {props.number}{' '}
+      </span>
     </Tabs.Trigger>
   )
 }
