@@ -141,7 +141,6 @@ export default function IndexPage() {
 function Project(props: {
   name: string
   href: string
-  status: 'launched' | 'soft launch' | 'experimental'
   description: string
 }) {
   return (
@@ -155,7 +154,6 @@ function Project(props: {
         >
           {props.name}
         </a>
-        <span>{props.status}</span>
       </div>
       <p className='font-medium'>{props.description}</p>
     </div>
