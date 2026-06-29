@@ -50,31 +50,26 @@ export default function IndexPage() {
             <Project
               name='better-pm'
               href='https://github.com/fdarian/better-pm'
-              status='soft launch'
               description='Shortcut package manager CLI for all projects, replacing switching between pnpm and bun'
             />
             <Project
               name='agent-dash'
               href='https://github.com/fdarian/agent-dash'
-              status='soft launch'
               description='Easier way to manage multiple Claude Code sessions'
             />
             <Project
               name='tmux-sessions'
               href='https://github.com/fdarian/tmux-sessions'
-              status='soft launch'
               description='A better default tmux session switcher, batteries included'
             />
             <Project
               name='ff'
               href='https://github.com/fdarian/ff'
-              status='experimental'
               description='A set of reusable utilities, covering AI SDK and Effect TS'
             />
             <Project
               name='lazygit.nvim'
               href='https://github.com/fdarian/lazygit.nvim'
-              status='launched'
               description='Lazygit integration in Neovim that works as expected'
             />
           </Tabs.Content>
