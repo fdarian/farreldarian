@@ -3,6 +3,7 @@ import { Analytics } from '@vercel/analytics/react'
 import { Agentation } from 'agentation'
 import type { Metadata } from 'next'
 import { Lora } from 'next/font/google'
+import Script from 'next/script'
 import { NavBar } from './components/navbar'
 import { SourceLink } from './components/source'
 import { Providers } from './providers'
@@ -13,6 +14,9 @@ export const metadata: Metadata = {
 }
 
 const lora = Lora({ variable: '--font-serif' })
+
+const umamiUrl = process.env.NEXT_PUBLIC_UMAMI_URL
+const umamiWebsiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID
 
 export default function RootLayout({
   children,
@@ -39,6 +43,13 @@ export default function RootLayout({
             </div>
           </footer>
           <Analytics />
+          {umamiUrl && umamiWebsiteId && (
+            <Script
+              src={`${umamiUrl}/script.js`}
+              data-website-id={umamiWebsiteId}
+              strategy='afterInteractive'
+            />
+          )}
           {process.env.NODE_ENV === 'development' && <Agentation />}
         </Providers>
       </body>
