@@ -1,0 +1,14 @@
+{
+	"extends": "@repo/config/tsconfig",
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"paths": { "#/*": ["./src/*"] }
+	},
+	"include": [
+		"src",
+		"entries",
+		"scripts",
+		"vite.config.ts",
+		"drizzle.config.ts"
+	]
+}
