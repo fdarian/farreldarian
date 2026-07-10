@@ -3,8 +3,9 @@
 Public personal site.
 
 ## Stack
-- Next.js (App Router), React 19
-- Tailwind CSS
+- Next.js (App Router), React 19 — real RSC, so `'use client'` is meaningful here (unlike TanStack Start)
+- Tailwind CSS v4 (CSS-driven, no `tailwind.config.js`)
+- shadcn on **Base UI** (`@base-ui/react`, no Radix), design system is the **`@coss` (coss.com/ui) registry** — its tokens/components are adopted as-is, not stock shadcn zinc/new-york
 - Biome
 
 ## Dev
@@ -14,5 +15,12 @@ Public personal site.
 ## Architecture
 - `app/` — routes (App Router)
 - `app/components/` — nav, source link, theme toggle
-- `styles/global.css` — CSS vars, imported in `app/layout.tsx`
-- `utils/class.ts` — `cn` classname helper
+- `components/ui/` — vendored `@coss/style` components (from `shadcn init @coss/style`); treat as generated, don't hand-edit — `components.json` `overrides` in `biome.jsonc` disables a11y rules there for known upstream lint findings
+- `styles/global.css` — `@theme inline` tokens from the coss design system, imported in `app/layout.tsx`
+- `lib/utils.ts` — `cn` classname helper (clsx + tailwind-merge)
+- `lib/panel.ts` — server-only Effect `HttpApiClient` for `@repo/api-contract`'s `PanelApi`; exports `getActivity()` / `listProjects()`. Requires `PANEL_API_URL` + `PANEL_API_KEY` (throws if unset — never call from a statically-prerendered route without `export const dynamic = 'force-dynamic'`)
+
+## Conventions
+- Single import alias: `@/*` → repo root (e.g. `@/lib/utils`, `@/components/ui/button`)
+- Base UI components use `render={<element />}` instead of Radix's `asChild`, and `data-active`/`data-disabled` instead of `data-state=active|inactive`
+- New components: `bunx shadcn add @coss/<name>` (font is Geist, kept independent of the coss design system per explicit direction)
