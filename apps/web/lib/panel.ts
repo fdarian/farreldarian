@@ -1,7 +1,11 @@
 import 'server-only'
 
-import type { ActivityResponse, ProjectsQuery } from '@repo/api-contract'
-import { PanelApi, type ProjectsResponse } from '@repo/api-contract'
+import type { ActivityResponse } from '@repo/api-contract'
+import {
+	PanelApi,
+	ProjectsQuery,
+	type ProjectsResponse,
+} from '@repo/api-contract'
 import { Effect, type Schema } from 'effect'
 import {
 	FetchHttpClient,
@@ -43,13 +47,18 @@ export function getActivity(): Promise<ActivityResponse> {
 }
 
 export function listProjects(
-	query?: ProjectsQuery
+	query?: ConstructorParameters<typeof ProjectsQuery>[0]
 ): Promise<Schema.Schema.Type<typeof ProjectsResponse>> {
 	const { baseUrl, apiKey } = panelCredentials()
 	return Effect.runPromise(
 		Effect.gen(function* () {
 			const client = yield* makePanelClient(baseUrl, apiKey)
-			return yield* client.feed.projects({ query: query ?? {} })
+			// `ProjectsQuery` is a Class schema — encoding it for the request
+			// requires an actual class instance, not a plain object, so we
+			// construct one here rather than pushing that onto callers.
+			return yield* client.feed.projects({
+				query: new ProjectsQuery(query ?? {}),
+			})
 		}).pipe(Effect.provide(FetchHttpClient.layer))
 	)
 }
