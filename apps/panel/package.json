@@ -3,7 +3,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "vite dev",
+		"dev": "NITRO_DEV_RUNNER=bun-process vite dev",
 		"build": "vite build",
 		"start": "bun run .output/server/index.mjs",
 		"check:type": "tsc --noEmit",

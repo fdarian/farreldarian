@@ -12,6 +12,27 @@ projects, backed by a toggle over my GitHub repos.
   fails those specific calls with a `GithubError`, nothing else.
 - `GITHUB_USERNAME` — defaults to `farreldarian`.
 
+## Dev server — `bun-process` runner required
+
+`vite dev` defaults nitro's dev server to a **Node worker** regardless of the build
+`preset` (`preset: 'bun'` only applies to `vite build` output) — so anything touching
+`drizzle-orm/bun-sqlite` (→ the `bun:sqlite` builtin) fails under plain `vite dev` with
+`Only URLs with a scheme in: file, data, and node are supported`, tracing into real
+`node:internal/modules/esm/*` even though the host process is Bun. Fixed by forcing the
+`bun-process` dev runner — both `nitro({ devServer: { runner: 'bun-process' } })` in
+`vite.config.ts` and `NITRO_DEV_RUNNER=bun-process` on the `dev` script in
+`package.json` (belt and suspenders; either alone is sufficient). Confirmed this fixes
+auth end-to-end under `vite dev`, including a live dev-email sign-in with a session
+cookie back and the allowlist correctly rejecting a non-allowlisted email.
+
+**Still open**: with the runner fix, `/api/v1/*` routes now 500 under `vite dev`
+specifically (`TypeError: undefined is not an object (evaluating 'that.build')` — looks
+like an Effect `Layer` build issue, plausibly from `src/server/api/web-handler.ts`'s
+module-level layers getting evaluated against two different module instances across
+Vite's dev SSR module graph). Not chased further — `/api/v1/*` is fully verified working
+in the **production build** (`vite build` + `bun run start`), which is what matters for
+deployment; only exercise it locally via that path until this is root-caused.
+
 ## Server functions — isolate them
 
 Server functions live in dedicated `*.functions.ts` files. **Never** mix them with
