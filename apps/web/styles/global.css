@@ -3,19 +3,19 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --foreground: theme("colors.stone.950");
-    --muted-foreground: theme("colors.stone.600");
-    --muted: theme("colors.stone.200");
-    --background: theme("colors.stone.50");
-    --border: theme("colors.stone.300");
-  }
+	:root {
+		--foreground: theme("colors.stone.950");
+		--muted-foreground: theme("colors.stone.600");
+		--muted: theme("colors.stone.200");
+		--background: theme("colors.stone.50");
+		--border: theme("colors.stone.300");
+	}
 
-  .dark {
-    --foreground: theme("colors.neutral.100");
-    --muted-foreground: theme("colors.neutral.400");
-    --muted: theme("colors.neutral.800");
-    --background: theme("colors.neutral.900");
-    --border: theme("colors.neutral.700");
-  }
+	.dark {
+		--foreground: theme("colors.neutral.100");
+		--muted-foreground: theme("colors.neutral.400");
+		--muted: theme("colors.neutral.800");
+		--background: theme("colors.neutral.900");
+		--border: theme("colors.neutral.700");
+	}
 }

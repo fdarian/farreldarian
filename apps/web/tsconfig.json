@@ -1,0 +1,27 @@
+{
+	"extends": "@repo/config/tsconfig",
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"baseUrl": ".",
+		"paths": {
+			"@components/*": ["components/*"],
+			"@lib/*": ["lib/*"],
+			"@public/*": ["public/*"],
+			"@styles/*": ["styles/*"]
+		},
+		"incremental": true,
+		"plugins": [
+			{
+				"name": "next"
+			}
+		]
+	},
+	"include": [
+		"next-env.d.ts",
+		"**/*.ts",
+		"**/*.tsx",
+		".next/types/**/*.ts",
+		".next/dev/types/**/*.ts"
+	],
+	"exclude": ["node_modules"]
+}

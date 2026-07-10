@@ -9,8 +9,8 @@ import { SourceLink } from './components/source'
 import { Providers } from './providers'
 
 export const metadata: Metadata = {
-  title: 'Farrel Darian',
-  description: 'Crafting interfaces that abstract complexity',
+	title: 'Farrel Darian',
+	description: 'Crafting interfaces that abstract complexity',
 }
 
 const lora = Lora({ variable: '--font-serif' })
@@ -19,40 +19,40 @@ const umamiUrl = process.env.NEXT_PUBLIC_UMAMI_URL
 const umamiWebsiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID
 
 export default function RootLayout({
-  children,
+	children,
 }: {
-  children: React.ReactNode
+	children: React.ReactNode
 }) {
-  return (
-    <html lang='en' suppressHydrationWarning>
-      <body
-        className={`${lora.variable} font-serif font-light text-foreground bg-background antialiased`}
-      >
-        <Providers>
-          <main className='min-h-screen p-6'>
-            <div className='sm:max-w-lg sm:mx-auto space-y-8'>
-              <NavBar />
+	return (
+		<html lang='en' suppressHydrationWarning>
+			<body
+				className={`${lora.variable} font-serif font-light text-foreground bg-background antialiased`}
+			>
+				<Providers>
+					<main className='min-h-screen p-6'>
+						<div className='sm:max-w-lg sm:mx-auto space-y-8'>
+							<NavBar />
 
-              {children}
-            </div>
-          </main>
+							{children}
+						</div>
+					</main>
 
-          <footer className='py-5 border-t-[0.5px] border-border'>
-            <div className='sm:max-w-lg sm:mx-auto flex justify-center'>
-              <SourceLink />
-            </div>
-          </footer>
-          <Analytics />
-          {umamiUrl && umamiWebsiteId && (
-            <Script
-              src={`${umamiUrl}/script.js`}
-              data-website-id={umamiWebsiteId}
-              strategy='afterInteractive'
-            />
-          )}
-          {process.env.NODE_ENV === 'development' && <Agentation />}
-        </Providers>
-      </body>
-    </html>
-  )
+					<footer className='py-5 border-t-[0.5px] border-border'>
+						<div className='sm:max-w-lg sm:mx-auto flex justify-center'>
+							<SourceLink />
+						</div>
+					</footer>
+					<Analytics />
+					{umamiUrl && umamiWebsiteId && (
+						<Script
+							src={`${umamiUrl}/script.js`}
+							data-website-id={umamiWebsiteId}
+							strategy='afterInteractive'
+						/>
+					)}
+					{process.env.NODE_ENV === 'development' && <Agentation />}
+				</Providers>
+			</body>
+		</html>
+	)
 }

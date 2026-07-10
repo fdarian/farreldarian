@@ -1,12 +1,12 @@
 .grad {
-  width: 100%;
-  height: 100%;
-  max-width: 914px;
-  min-height: 587px;
+	width: 100%;
+	height: 100%;
+	max-width: 914px;
+	min-height: 587px;
 
-  background: radial-gradient(
-    50% 50% at 50% 50%,
-    rgba(54, 94, 122, 0.47) 0%,
-    rgba(196, 196, 196, 0) 100%
-  );
+	background: radial-gradient(
+		50% 50% at 50% 50%,
+		rgba(54, 94, 122, 0.47) 0%,
+		rgba(196, 196, 196, 0) 100%
+	);
 }

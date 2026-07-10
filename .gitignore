@@ -3,7 +3,7 @@
 .vscode
 
 # dependencies
-/node_modules
+node_modules
 /.pnp
 .pnp.js
 
@@ -16,6 +16,9 @@
 
 # production
 /build
+
+# turborepo
+.turbo
 
 # misc
 .DS_Store
