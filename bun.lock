@@ -53,15 +53,18 @@
       "dependencies": {
         "@base-ui/react": "^1.6.0",
         "@phosphor-icons/react": "^2.1.10",
+        "@repo/api-contract": "workspace:*",
         "@vercel/analytics": "^1.4.1",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
+        "effect": "beta",
         "lucide-react": "^1.24.0",
         "next": "16.2.9",
         "next-themes": "^0.4.6",
         "react": "^19.2.7",
         "react-day-picker": "^10.0.1",
         "react-dom": "^19.2.7",
+        "server-only": "^0.0.1",
         "tailwind-merge": "^3.6.0",
       },
       "devDependencies": {
@@ -873,6 +876,8 @@
     "seroval": ["seroval@1.5.5", "", {}, "sha512-bSjOuPcwPKLSJNhr9+bZxA20nQxVle5J5MNsYRVE6cIg7KpRLXGupymePavu0jrxlPiPsr4xGZSB8yUY2sH2sw=="],
 
     "seroval-plugins": ["seroval-plugins@1.5.5", "", { "peerDependencies": { "seroval": "^1.0" } }, "sha512-+BDhqYM6CEn3x09v44dpa9p6974FuUB2dxk+Ctn04k0cO1Zt6QODTXfmEZK0eBaTe/fJBvP4NMGuNJ+R8T+QMg=="],
+
+    "server-only": ["server-only@0.0.1", "", {}, "sha512-qepMx2JxAa5jjfzxG79yPPq+8BuFToHd1hm7kI+Z4zAq1ftQiP7HcxMhDDItrbtwVeLg/cY2JnKnrcFkmiswNA=="],
 
     "set-cookie-parser": ["set-cookie-parser@3.1.2", "", {}, "sha512-5/r/lTwbJ3zQ+qwdUFZYeRNqda7P5HD8zQKqlSjdGt1/S0cjLAphHusj4Y58ahDtWn/g32xrIS58/ikOvwl0Lw=="],
 
