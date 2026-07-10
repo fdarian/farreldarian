@@ -3,6 +3,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
+		"env:inject": "infisical export --path=/fdariancom/panel --format=dotenv-export",
 		"dev": "NITRO_DEV_RUNNER=bun-process vite dev",
 		"build": "vite build",
 		"start": "bun run .output/server/index.mjs",
