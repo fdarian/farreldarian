@@ -1,0 +1,17 @@
+{
+	"name": "@repo/api-contract",
+	"private": true,
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"check:type": "tsc --noEmit",
+		"check:lint": "biome check ."
+	},
+	"dependencies": {
+		"effect": "beta"
+	},
+	"devDependencies": {
+		"@repo/config": "workspace:*"
+	}
+}
