@@ -91,7 +91,7 @@ async function ContributionsSection() {
 	return (
 		<>
 			{activity.openSource.map((item) => (
-				<ActivityRow key={item.href} item={item} />
+				<ActivityRow key={item.href} item={item} variant='open-source' />
 			))}
 		</>
 	)

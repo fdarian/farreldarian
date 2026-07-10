@@ -4,7 +4,7 @@ import NextLink from 'next/link'
 import type { AnchorHTMLAttributes } from 'react'
 import { cache, Suspense } from 'react'
 import { getActivity } from '@/lib/panel'
-import { ActivityRow } from './components/activity-row'
+import { ActivityRow, type ActivityRowVariant } from './components/activity-row'
 
 // Activity is backed by a live panel API — can't be known at build time.
 export const dynamic = 'force-dynamic'
@@ -180,12 +180,14 @@ async function ActivitySection() {
 				seeAllLabel='All projects'
 				seeAllHref='/software'
 				items={activity.projects.slice(0, 3)}
+				variant='project'
 			/>
 			<ActivityGroup
 				title='Open Source'
 				seeAllLabel='All contributions'
 				seeAllHref='/software'
 				items={activity.openSource.slice(0, 3)}
+				variant='open-source'
 			/>
 		</>
 	)
@@ -206,6 +208,7 @@ function ActivityGroup(props: {
 	seeAllLabel: string
 	seeAllHref: string
 	items: ActivityItem[]
+	variant: ActivityRowVariant
 }) {
 	if (props.items.length === 0) return null
 
@@ -222,7 +225,7 @@ function ActivityGroup(props: {
 			</div>
 			<div className='space-y-3'>
 				{props.items.map((item) => (
-					<ActivityRow key={item.href} item={item} />
+					<ActivityRow key={item.href} item={item} variant={props.variant} />
 				))}
 			</div>
 		</div>
