@@ -1,0 +1,5 @@
+language js
+
+// sqlite has no schema namespace (unlike Postgres), so unlike the reference
+// this only injects the DO-NOT-EDIT banner — no pgTable/pgSchema rewrite.
+`import { $items } from "drizzle-orm/sqlite-core";` => `// AUTO-GENERATED — DO NOT EDIT MANUALLY.\n// Run \`bun better-auth:generate\` to regenerate this file.\n\nimport { $items } from "drizzle-orm/sqlite-core";`
