@@ -1,5 +1,6 @@
 import { Tabs } from '@base-ui/react/tabs'
 import { CaretDoubleRightIcon } from '@phosphor-icons/react/dist/ssr/CaretDoubleRight'
+import { Suspense } from 'react'
 import { getActivity, listProjects } from '@/lib/panel'
 import { ActivityRow } from '../components/activity-row'
 import { ProjectsExplorer } from './projects-explorer'
@@ -7,12 +8,7 @@ import { ProjectsExplorer } from './projects-explorer'
 // Backed by a live panel API — can't be known at build time.
 export const dynamic = 'force-dynamic'
 
-export default async function SoftwarePage() {
-	const [projects, activity] = await Promise.all([
-		listProjects(),
-		getActivity(),
-	])
-
+export default function SoftwarePage() {
 	return (
 		<Tabs.Root
 			defaultValue='projects'
@@ -30,19 +26,74 @@ export default async function SoftwarePage() {
 				<p className='text-sm text-muted-foreground'>
 					Things I've built — mostly tools that make my own workflow better.
 				</p>
-				<ProjectsExplorer projects={projects} />
+				<Suspense
+					fallback={
+						<p className='text-sm text-muted-foreground'>Loading projects…</p>
+					}
+				>
+					<ProjectsSection />
+				</Suspense>
 			</Tabs.Panel>
 
 			<Tabs.Panel value='contributions' className='space-y-3'>
-				{activity.openSource.length === 0 ? (
-					<p className='text-sm text-muted-foreground'>No contributions yet.</p>
-				) : (
-					activity.openSource.map((item) => (
-						<ActivityRow key={item.href} item={item} />
-					))
-				)}
+				<Suspense
+					fallback={
+						<p className='text-sm text-muted-foreground'>
+							Loading contributions…
+						</p>
+					}
+				>
+					<ContributionsSection />
+				</Suspense>
 			</Tabs.Panel>
 		</Tabs.Root>
+	)
+}
+
+/** Isolated so a GitHub outage never blocks the sqlite-backed Projects tab. */
+async function ProjectsSection() {
+	let projects: Awaited<ReturnType<typeof listProjects>>
+	try {
+		// listProjects() can throw synchronously (missing credentials) as well as
+		// reject asynchronously (network/API failure) — try/catch covers both,
+		// a `.catch()` chain would only cover the latter.
+		projects = await listProjects()
+	} catch {
+		return (
+			<p className='text-sm text-muted-foreground'>
+				Couldn't load projects right now.
+			</p>
+		)
+	}
+
+	return <ProjectsExplorer projects={projects} />
+}
+
+/** Isolated so a GitHub outage only degrades the Contributions tab. */
+async function ContributionsSection() {
+	let activity: Awaited<ReturnType<typeof getActivity>>
+	try {
+		activity = await getActivity()
+	} catch {
+		return (
+			<p className='text-sm text-muted-foreground'>
+				Couldn't load contributions right now.
+			</p>
+		)
+	}
+
+	if (activity.openSource.length === 0) {
+		return (
+			<p className='text-sm text-muted-foreground'>No contributions yet.</p>
+		)
+	}
+
+	return (
+		<>
+			{activity.openSource.map((item) => (
+				<ActivityRow key={item.href} item={item} />
+			))}
+		</>
 	)
 }
 
