@@ -7,9 +7,16 @@ import { createRunPromiseUnwrapped } from '#/lib/effect/utils/run-promise-unwrap
 import { AuthGoogle } from './auth/google.ts'
 import { Auth } from './auth.ts'
 import { Database } from './db/service.ts'
+import { Github } from './github/service.ts'
+import { Repos } from './repos/service.ts'
 
 const layersCore = Auth.layer
-const layersInfra = Layer.mergeAll(Database.layer, AuthGoogle.layer)
+const layersInfra = Layer.mergeAll(
+	Database.layer,
+	AuthGoogle.layer,
+	Github.layer,
+	Repos.layer.pipe(Layer.provide(Database.layer))
+)
 
 export const layerMain = layersCore.pipe(
 	Layer.provideMerge(layersInfra),

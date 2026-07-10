@@ -1,5 +1,8 @@
 import { Config, Context, Effect, Layer, Schema } from 'effect'
+import * as reposSchema from '../repos/drizzle.ts'
 import * as authSchema from './models/auth.ts'
+
+const schema = { ...authSchema, ...reposSchema }
 
 export const databaseUrl = Config.string('DATABASE_URL').pipe(
 	Config.withDefault('./data/panel.sqlite')
@@ -28,7 +31,7 @@ export class Database extends Context.Service<Database>()('server/db', {
 		const { drizzle } = yield* Effect.promise(
 			() => import('drizzle-orm/bun-sqlite')
 		)
-		const client = drizzle(url, { schema: authSchema })
+		const client = drizzle(url, { schema })
 		type DrizzleClient = typeof client
 
 		return {

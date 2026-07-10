@@ -7,7 +7,7 @@ export default Effect.gen(function* () {
 
 	return defineConfig({
 		dialect: 'sqlite',
-		schema: './src/server/db/models',
+		schema: ['./src/server/db/models', './src/**/drizzle.ts'],
 		migrations: { table: '__drizzle_migrations_panel' },
 		dbCredentials: { url },
 	})
