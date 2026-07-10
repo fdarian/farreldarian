@@ -16,7 +16,7 @@ export function SiteHeader() {
 	const pathname = usePathname()
 
 	return (
-		<div className='space-y-2'>
+		<div className='space-y-2 pt-5 pb-10'>
 			<div className='flex items-center justify-between'>
 				<div className='flex items-center gap-3'>
 					{crumbs.map((crumb) => {
@@ -43,7 +43,6 @@ export function SiteHeader() {
 
 				<ThemeToggle />
 			</div>
-			<div className='h-[0.5px] w-full bg-border' />
 		</div>
 	)
 }

@@ -18,11 +18,13 @@ export default function IndexPage() {
 		<>
 			<section className='space-y-4'>
 				<p>
-					I'm an engineer, I{' '}
-					<span className='border-b border-border'>build things</span> when I
+					I'm an engineer, I <Link href='/software'>build things</Link> when I
 					see something that could be better.
 					<br />I think a lot about abstraction, philosophy, and{' '}
-					<span className='border-b border-border'>music</span>.
+					<Link href='https://music.apple.com/profile/fdarian' external>
+						music
+					</Link>
+					.
 				</p>
 
 				<p>
@@ -38,10 +40,10 @@ export default function IndexPage() {
 				</p>
 			</section>
 
-			<section className='flex items-center gap-5'>
+			<section className='flex items-center gap-5 mt-10'>
 				<p className='text-sm text-muted-foreground'>Let's connect</p>
 				<div className='h-px w-16 shrink-0 bg-border' />
-				<div className='flex gap-6'>
+				<div className='flex gap-6 text-sm'>
 					<Link href='mailto:farrel@fdarian.com' external>
 						Mail
 					</Link>
@@ -71,7 +73,7 @@ export default function IndexPage() {
 
 			<Tabs.Root
 				defaultValue='activity'
-				render={<section className='space-y-2' />}
+				render={<section className='space-y-2 mt-20' />}
 			>
 				<Tabs.List className='flex items-center gap-3'>
 					<Tab
@@ -295,7 +297,7 @@ type LinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
 function Link({ children, external, ...rest }: LinkProps) {
 	return (
 		<a
-			className='border-b border-border text-sm transition-colors ease-out duration-100 hover:border-foreground'
+			className='border-b border-border transition-colors ease-out duration-100 hover:border-foreground inline-flex items-center'
 			{...(external && {
 				target: '_blank',
 				rel: 'noopener noreferrer',
