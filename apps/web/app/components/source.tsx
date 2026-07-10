@@ -5,13 +5,9 @@ import { usePathname } from 'next/navigation'
 function getPath(pathname: string) {
 	switch (pathname) {
 		case '/':
-			return '/blob/main/app/page.tsx'
-		case '/bio':
-			return '/blob/main/app/bio/page.tsx'
-		case '/music':
-			return '/blob/main/app/music/page.tsx'
-		case '/curiousity':
-			return '/blob/main/app/curiousity/page.tsx'
+			return '/blob/main/apps/web/app/page.tsx'
+		case '/software':
+			return '/blob/main/apps/web/app/software/page.tsx'
 		default:
 			return ''
 	}

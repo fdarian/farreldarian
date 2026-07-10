@@ -9,11 +9,7 @@ import { ThemeToggle } from './theme-toggle'
 export function NavBar() {
 	const pathname = usePathname()
 
-	const navItems = [
-		{ label: 'Music', href: '/music' },
-		{ label: 'Curiousity', href: '/curiousity' },
-		{ label: 'Bio', href: '/' },
-	]
+	const navItems = [{ label: 'Bio', href: '/' }]
 
 	const isActive = (href: string) => pathname === href
 
