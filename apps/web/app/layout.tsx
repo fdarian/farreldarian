@@ -38,12 +38,6 @@ export default function RootLayout({
 							{children}
 						</div>
 					</main>
-
-					<footer className='py-5 border-t-[0.5px] border-border'>
-						<div className='sm:max-w-lg sm:mx-auto flex justify-center'>
-							<SourceLink />
-						</div>
-					</footer>
 					<Analytics />
 					{umamiUrl && umamiWebsiteId && (
 						<Script
