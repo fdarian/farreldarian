@@ -28,7 +28,7 @@ export default function IndexPage() {
 				</p>
 
 				<p>
-					I work on agents at Risedle. I also advise{' '}
+					Currently I work on agents at Risedle. I also advise{' '}
 					<Link href='https://atur.ai' external>
 						atur.ai
 					</Link>{' '}
@@ -185,7 +185,7 @@ async function ActivitySection() {
 			<ActivityGroup
 				title='Open Source'
 				seeAllLabel='All contributions'
-				seeAllHref='/software'
+				seeAllHref='/software?tab=contributions'
 				items={activity.openSource.slice(0, 3)}
 				variant='open-source'
 			/>
