@@ -1,12 +1,12 @@
 import 'server-only'
 
-import type { ActivityResponse } from '@repo/api-contract'
 import {
+	ActivityResponse,
 	PanelApi,
 	ProjectsQuery,
-	type ProjectsResponse,
+	ProjectsResponse,
 } from '@repo/api-contract'
-import { Effect, type Schema } from 'effect'
+import { Effect, Schema } from 'effect'
 import {
 	FetchHttpClient,
 	HttpClient,
@@ -36,19 +36,23 @@ function makePanelClient(baseUrl: string, apiKey: string) {
 	})
 }
 
-export function getActivity(): Promise<ActivityResponse> {
+export function getActivity(): Promise<(typeof ActivityResponse)['Encoded']> {
 	const { baseUrl, apiKey } = panelCredentials()
 	return Effect.runPromise(
 		Effect.gen(function* () {
 			const client = yield* makePanelClient(baseUrl, apiKey)
-			return yield* client.feed.activity({})
+			const activity = yield* client.feed.activity({})
+			// `ActivityResponse`/`ActivityItem` decode into Schema.Class instances,
+			// which RSC can't serialize across the server/client boundary — encode
+			// back to a plain object before returning.
+			return Schema.encodeSync(ActivityResponse)(activity)
 		}).pipe(Effect.provide(FetchHttpClient.layer))
 	)
 }
 
 export function listProjects(
 	query?: ConstructorParameters<typeof ProjectsQuery>[0]
-): Promise<Schema.Schema.Type<typeof ProjectsResponse>> {
+): Promise<(typeof ProjectsResponse)['Encoded']> {
 	const { baseUrl, apiKey } = panelCredentials()
 	return Effect.runPromise(
 		Effect.gen(function* () {
@@ -56,9 +60,13 @@ export function listProjects(
 			// `ProjectsQuery` is a Class schema — encoding it for the request
 			// requires an actual class instance, not a plain object, so we
 			// construct one here rather than pushing that onto callers.
-			return yield* client.feed.projects({
+			const projects = yield* client.feed.projects({
 				query: new ProjectsQuery(query ?? {}),
 			})
+			// `Project` decodes into a Schema.Class instance, which RSC can't
+			// serialize across the server/client boundary — encode back to a
+			// plain object before returning.
+			return Schema.encodeSync(ProjectsResponse)(projects)
 		}).pipe(Effect.provide(FetchHttpClient.layer))
 	)
 }
