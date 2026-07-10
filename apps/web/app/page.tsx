@@ -1,4 +1,4 @@
-import * as Tabs from '@radix-ui/react-tabs'
+import { Tabs } from '@base-ui/react/tabs'
 import type { AnchorHTMLAttributes } from 'react'
 
 export default function IndexPage() {
@@ -38,91 +38,92 @@ export default function IndexPage() {
 				</Link>
 			</section>
 
-			<Tabs.Root defaultValue='projects' defaultChecked asChild>
-				<section className='space-y-2'>
-					<Tabs.List className='flex items-center gap-3'>
-						<Tab title='Projects' value='projects' number='5' />
-						<Tab
-							title='Experience'
-							value='exp'
-							number={`${new Date().getUTCFullYear() - 2021}y`}
-						/>
-						<Tab title='Talks' value='talks' number='2' />
-					</Tabs.List>
+			<Tabs.Root
+				defaultValue='projects'
+				render={<section className='space-y-2' />}
+			>
+				<Tabs.List className='flex items-center gap-3'>
+					<Tab title='Projects' value='projects' number='5' />
+					<Tab
+						title='Experience'
+						value='exp'
+						number={`${new Date().getUTCFullYear() - 2021}y`}
+					/>
+					<Tab title='Talks' value='talks' number='2' />
+				</Tabs.List>
 
-					<Tabs.Content value='projects' className='space-y-4'>
-						<Project
-							name='better-pm'
-							href='https://github.com/fdarian/better-pm'
-							description='Shortcut package manager CLI for all projects, replacing switching between pnpm and bun'
-						/>
-						<Project
-							name='agent-dash'
-							href='https://github.com/fdarian/agent-dash'
-							description='Easier way to manage multiple Claude Code sessions'
-						/>
-						<Project
-							name='tmux-sessions'
-							href='https://github.com/fdarian/tmux-sessions'
-							description='A better default tmux session switcher, batteries included'
-						/>
-						<Project
-							name='ff'
-							href='https://github.com/fdarian/ff'
-							description='A set of reusable utilities, covering AI SDK and Effect TS'
-						/>
-						<Project
-							name='lazygit.nvim'
-							href='https://github.com/fdarian/lazygit.nvim'
-							description='Lazygit integration in Neovim that works as expected'
-						/>
-					</Tabs.Content>
+				<Tabs.Panel value='projects' className='space-y-4'>
+					<Project
+						name='better-pm'
+						href='https://github.com/fdarian/better-pm'
+						description='Shortcut package manager CLI for all projects, replacing switching between pnpm and bun'
+					/>
+					<Project
+						name='agent-dash'
+						href='https://github.com/fdarian/agent-dash'
+						description='Easier way to manage multiple Claude Code sessions'
+					/>
+					<Project
+						name='tmux-sessions'
+						href='https://github.com/fdarian/tmux-sessions'
+						description='A better default tmux session switcher, batteries included'
+					/>
+					<Project
+						name='ff'
+						href='https://github.com/fdarian/ff'
+						description='A set of reusable utilities, covering AI SDK and Effect TS'
+					/>
+					<Project
+						name='lazygit.nvim'
+						href='https://github.com/fdarian/lazygit.nvim'
+						description='Lazygit integration in Neovim that works as expected'
+					/>
+				</Tabs.Panel>
 
-					<Tabs.Content value='talks' className='space-y-4'>
-						<Talks
-							place='Berlin'
-							year='2022'
-							event='AsiaBerlin'
-							title='Building the future with Music & Healthcare - the Indonesia way'
-							link='https://www.youtube.com/watch?t=19891&v=B4GdwBBQUQs&feature=youtu.be'
-						/>
-						<Talks
-							place='Virtual'
-							year='2021'
-							event='Beyond B'
-							title='Smart Contract Programming with Solidity'
-							link='https://www.kaskus.co.id/thread/610ba83e5263da119c5945c3/gagal-paham-dengan-crypto-join-webinar-beyond-b--how-crypto-works-under-the-hood/'
-						/>
-					</Tabs.Content>
+				<Tabs.Panel value='talks' className='space-y-4'>
+					<Talks
+						place='Berlin'
+						year='2022'
+						event='AsiaBerlin'
+						title='Building the future with Music & Healthcare - the Indonesia way'
+						link='https://www.youtube.com/watch?t=19891&v=B4GdwBBQUQs&feature=youtu.be'
+					/>
+					<Talks
+						place='Virtual'
+						year='2021'
+						event='Beyond B'
+						title='Smart Contract Programming with Solidity'
+						link='https://www.kaskus.co.id/thread/610ba83e5263da119c5945c3/gagal-paham-dengan-crypto-join-webinar-beyond-b--how-crypto-works-under-the-hood/'
+					/>
+				</Tabs.Panel>
 
-					<Tabs.Content value='exp' className='space-y-4'>
-						<Experience
-							year='2023 - Present'
-							place='Risedle'
-							title='On the side, I participated in building market and sentiment intelligence systems'
-						/>
-						<Experience
-							year='2024 - 2026'
-							place='AturAI'
-							title='Born from personal frustration, I initiated a legal knowledge base startup'
-						/>
-						<Experience
-							place='Netra'
-							year='2022 - 2025'
-							title='Drawn into the startup world early, I was the founding engineer building a blockchain-based royalty distribution system along with several other innovations for the music industry'
-						/>
-						<Experience
-							place='GDP Labs'
-							year='2021 - 2022'
-							title='My first contribution to the tech industry as a blockchain engineer and researcher'
-						/>
-						<Experience
-							place='Binus University'
-							year='2019 - 2021'
-							title='While pursuing my degree, I started my career teaching as a lab assistant'
-						/>
-					</Tabs.Content>
-				</section>
+				<Tabs.Panel value='exp' className='space-y-4'>
+					<Experience
+						year='2023 - Present'
+						place='Risedle'
+						title='On the side, I participated in building market and sentiment intelligence systems'
+					/>
+					<Experience
+						year='2024 - 2026'
+						place='AturAI'
+						title='Born from personal frustration, I initiated a legal knowledge base startup'
+					/>
+					<Experience
+						place='Netra'
+						year='2022 - 2025'
+						title='Drawn into the startup world early, I was the founding engineer building a blockchain-based royalty distribution system along with several other innovations for the music industry'
+					/>
+					<Experience
+						place='GDP Labs'
+						year='2021 - 2022'
+						title='My first contribution to the tech industry as a blockchain engineer and researcher'
+					/>
+					<Experience
+						place='Binus University'
+						year='2019 - 2021'
+						title='While pursuing my degree, I started my career teaching as a lab assistant'
+					/>
+				</Tabs.Panel>
 			</Tabs.Root>
 
 			{/*<Section title='Music' className='flex items-center gap-6'>
@@ -176,7 +177,7 @@ function Talks(props: {
 					href={props.link}
 					className='border-b border-border hover:border-foreground transition-colors ease-out duration-100 text-xs'
 				>
-					link
+					Watch talk
 				</a>
 			</div>
 			<p className='font-medium'>{props.title}</p>
@@ -198,15 +199,15 @@ function Experience(props: { place: string; year?: string; title: string }) {
 
 function Tab(props: { value: string; title: string; number: React.ReactNode }) {
 	return (
-		<Tabs.Trigger
+		<Tabs.Tab
 			value={props.value}
-			className='text-sm data-[state=inactive]:text-muted-foreground cursor-pointer flex items-center gap-1.5'
+			className='text-sm text-muted-foreground data-active:text-foreground cursor-pointer flex items-center gap-1.5'
 		>
 			<span>{props.title}</span>
 			<span className='text-[10px] text-muted-foreground rounded-full bg-muted border-[0.5px] border-border leading-[10px] px-1 py-0.5'>
 				{props.number}{' '}
 			</span>
-		</Tabs.Trigger>
+		</Tabs.Tab>
 	)
 }
 
