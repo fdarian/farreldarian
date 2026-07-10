@@ -2,25 +2,27 @@ import { Tabs } from '@base-ui/react/tabs'
 import type { ActivityItem } from '@repo/api-contract'
 import NextLink from 'next/link'
 import type { AnchorHTMLAttributes } from 'react'
-import { Suspense } from 'react'
+import { cache, Suspense } from 'react'
 import { getActivity } from '@/lib/panel'
 import { ActivityRow } from './components/activity-row'
 
 // Activity is backed by a live panel API — can't be known at build time.
 export const dynamic = 'force-dynamic'
 
+// Both the Activity panel and the tab's count badge need this — cache() dedupes
+// the fetch to a single call per request instead of two independent round-trips.
+const getCachedActivity = cache(getActivity)
+
 export default function IndexPage() {
 	return (
 		<>
 			<section className='space-y-4'>
-				<p className='font-serif text-lg font-medium'>
-					Farrel Darian, compulsive builder, engineer. / Currently exploring how
-					philosophical principles guide the design of intelligent systems.
-				</p>
-
 				<p>
-					I'm an engineer, I build things when I see something that could be
-					better. I think a lot about abstraction, philosophy, and music.
+					I'm an engineer, I{' '}
+					<span className='border-b border-border'>build things</span> when I
+					see something that could be better.
+					<br />I think a lot about abstraction, philosophy, and{' '}
+					<span className='border-b border-border'>music</span>.
 				</p>
 
 				<p>
@@ -36,19 +38,35 @@ export default function IndexPage() {
 				</p>
 			</section>
 
-			<section className='flex flex-wrap gap-6 text-lg'>
-				<Link href='mailto:farrel@fdarian.com' external>
-					Mail
-				</Link>
-				<Link href='https://www.linkedin.com/in/farreldarian/' external>
-					LinkedIn
-				</Link>
-				<Link href='https://twitter.com/farreldarian' external>
-					X
-				</Link>
-				<Link href='https://github.com/fdarian' external>
-					Github
-				</Link>
+			<section className='flex items-center gap-5'>
+				<p className='text-sm text-muted-foreground'>Let's connect</p>
+				<div className='h-px w-16 shrink-0 bg-border' />
+				<div className='flex gap-6'>
+					<Link href='mailto:farrel@fdarian.com' external>
+						Mail
+					</Link>
+					<Link href='https://www.linkedin.com/in/farreldarian/' external>
+						LinkedIn
+					</Link>
+					<Link href='https://twitter.com/farreldarian' external>
+						<svg
+							viewBox='593.869 607.502 11.746 12.01'
+							width='12'
+							height='12'
+							xmlns='http://www.w3.org/2000/svg'
+							className='shrink-0'
+							aria-label='X'
+						>
+							<path
+								d='M600.963 612.755L604.748 608.655h-0.896L600.564 612.216 597.939 608.655H594.91l3.971 5.383L594.91 618.338h0.897l3.471-3.76 2.774 3.76H605.08L600.963 612.755h0ZM599.734 614.086l-0.403-0.537-3.2-4.266h1.377l2.583 3.444 0.403 0.536 3.358 4.475H602.474L599.734 614.086v0Z'
+								fill='currentColor'
+							/>
+						</svg>
+					</Link>
+					<Link href='https://github.com/fdarian' external>
+						Github
+					</Link>
+				</div>
 			</section>
 
 			<Tabs.Root
@@ -56,7 +74,15 @@ export default function IndexPage() {
 				render={<section className='space-y-2' />}
 			>
 				<Tabs.List className='flex items-center gap-3'>
-					<Tab title='Activity' value='activity' />
+					<Tab
+						title='Activity'
+						value='activity'
+						number={
+							<Suspense fallback={null}>
+								<ActivityCount />
+							</Suspense>
+						}
+					/>
 					<Tab
 						title='Experience'
 						value='exp'
@@ -132,7 +158,7 @@ async function ActivitySection() {
 		// getActivity() can throw synchronously (missing credentials) as well as
 		// reject asynchronously (network/API failure) — try/catch covers both,
 		// a `.catch()` chain would only cover the latter.
-		activity = await getActivity()
+		activity = await getCachedActivity()
 	} catch {
 		return (
 			<p className='text-sm text-muted-foreground'>
@@ -161,6 +187,16 @@ async function ActivitySection() {
 			/>
 		</>
 	)
+}
+
+/** Same cached fetch as ActivitySection (deduped via cache()) — degrades to no badge rather than a fake count. */
+async function ActivityCount() {
+	try {
+		const activity = await getCachedActivity()
+		return <>{activity.projects.length + activity.openSource.length}</>
+	} catch {
+		return null
+	}
 }
 
 function ActivityGroup(props: {
@@ -240,11 +276,11 @@ function Tab(props: {
 	return (
 		<Tabs.Tab
 			value={props.value}
-			className='flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground data-active:text-foreground'
+			className='group flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground data-active:text-foreground'
 		>
 			<span>{props.title}</span>
 			{props.number !== undefined && (
-				<span className='rounded-full border-[0.5px] border-border bg-muted px-1 py-0.5 text-[10px] text-muted-foreground leading-[10px]'>
+				<span className='rounded-full border-[0.5px] border-border bg-muted px-1 py-0.5 text-[10px] text-muted-foreground leading-[10px] group-data-active:text-foreground'>
 					{props.number}{' '}
 				</span>
 			)}
