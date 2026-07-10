@@ -24,6 +24,8 @@ export const FeedApiLive = HttpApiBuilder.group(PanelApi, 'feed', (handlers) =>
 				const personalRepoKeys = new Set(
 					personalKeys.map((key) => `${key.owner}/${key.name}`)
 				)
+				const isOwnRepo = (repo: string) =>
+					repo.split('/')[0]?.toLowerCase() === github.username.toLowerCase()
 
 				const items = pullRequests.map(
 					(pr) =>
@@ -37,9 +39,15 @@ export const FeedApiLive = HttpApiBuilder.group(PanelApi, 'feed', (handlers) =>
 						})
 				)
 
+				// A PR is "personal" if the repo is toggled `isPersonalProject` OR I
+				// own the repo (owned-but-untoggled repos shouldn't leak into open
+				// source just because nobody's flipped the toggle yet). "openSource"
+				// is only genuinely external repos.
 				return new ActivityResponse({
 					projects: items.filter((item) => personalRepoKeys.has(item.repo)),
-					openSource: items.filter((item) => !personalRepoKeys.has(item.repo)),
+					openSource: items.filter(
+						(item) => !personalRepoKeys.has(item.repo) && !isOwnRepo(item.repo)
+					),
 				})
 			}).pipe(Effect.orDie)
 		)
