@@ -2,15 +2,14 @@ import { Tabs } from '@base-ui/react/tabs'
 import type { ActivityItem } from '@repo/api-contract'
 import NextLink from 'next/link'
 import type { AnchorHTMLAttributes } from 'react'
+import { Suspense } from 'react'
 import { getActivity } from '@/lib/panel'
 import { ActivityRow } from './components/activity-row'
 
 // Activity is backed by a live panel API — can't be known at build time.
 export const dynamic = 'force-dynamic'
 
-export default async function IndexPage() {
-	const activity = await getActivity()
-
+export default function IndexPage() {
 	return (
 		<>
 			<section className='space-y-4'>
@@ -57,11 +56,7 @@ export default async function IndexPage() {
 				render={<section className='space-y-2' />}
 			>
 				<Tabs.List className='flex items-center gap-3'>
-					<Tab
-						title='Activity'
-						value='activity'
-						number={activity.projects.length + activity.openSource.length}
-					/>
+					<Tab title='Activity' value='activity' />
 					<Tab
 						title='Experience'
 						value='exp'
@@ -72,18 +67,13 @@ export default async function IndexPage() {
 				<div className='h-[0.5px] w-full bg-border' />
 
 				<Tabs.Panel value='activity' className='space-y-6'>
-					<ActivityGroup
-						title='Projects'
-						seeAllLabel='All projects'
-						seeAllHref='/software'
-						items={activity.projects.slice(0, 3)}
-					/>
-					<ActivityGroup
-						title='Open Source'
-						seeAllLabel='All contributions'
-						seeAllHref='/software'
-						items={activity.openSource.slice(0, 3)}
-					/>
+					<Suspense
+						fallback={
+							<p className='text-sm text-muted-foreground'>Loading activity…</p>
+						}
+					>
+						<ActivitySection />
+					</Suspense>
 				</Tabs.Panel>
 
 				<Tabs.Panel value='talks' className='space-y-4'>
@@ -131,6 +121,44 @@ export default async function IndexPage() {
 					/>
 				</Tabs.Panel>
 			</Tabs.Root>
+		</>
+	)
+}
+
+/** Isolated so a GitHub outage only degrades the Activity tab — Experience/Talks render regardless. */
+async function ActivitySection() {
+	let activity: Awaited<ReturnType<typeof getActivity>>
+	try {
+		// getActivity() can throw synchronously (missing credentials) as well as
+		// reject asynchronously (network/API failure) — try/catch covers both,
+		// a `.catch()` chain would only cover the latter.
+		activity = await getActivity()
+	} catch {
+		return (
+			<p className='text-sm text-muted-foreground'>
+				Couldn't load activity right now.
+			</p>
+		)
+	}
+
+	if (activity.projects.length === 0 && activity.openSource.length === 0) {
+		return <p className='text-sm text-muted-foreground'>No recent activity.</p>
+	}
+
+	return (
+		<>
+			<ActivityGroup
+				title='Projects'
+				seeAllLabel='All projects'
+				seeAllHref='/software'
+				items={activity.projects.slice(0, 3)}
+			/>
+			<ActivityGroup
+				title='Open Source'
+				seeAllLabel='All contributions'
+				seeAllHref='/software'
+				items={activity.openSource.slice(0, 3)}
+			/>
 		</>
 	)
 }
@@ -204,16 +232,22 @@ function Experience(props: { place: string; year?: string; title: string }) {
 	)
 }
 
-function Tab(props: { value: string; title: string; number: React.ReactNode }) {
+function Tab(props: {
+	value: string
+	title: string
+	number?: React.ReactNode
+}) {
 	return (
 		<Tabs.Tab
 			value={props.value}
 			className='flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground data-active:text-foreground'
 		>
 			<span>{props.title}</span>
-			<span className='rounded-full border-[0.5px] border-border bg-muted px-1 py-0.5 text-[10px] text-muted-foreground leading-[10px]'>
-				{props.number}{' '}
-			</span>
+			{props.number !== undefined && (
+				<span className='rounded-full border-[0.5px] border-border bg-muted px-1 py-0.5 text-[10px] text-muted-foreground leading-[10px]'>
+					{props.number}{' '}
+				</span>
+			)}
 		</Tabs.Tab>
 	)
 }
