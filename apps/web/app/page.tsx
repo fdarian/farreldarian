@@ -16,7 +16,7 @@ const getCachedActivity = cache(getActivity)
 export default function IndexPage() {
 	return (
 		<>
-			<section className='space-y-4'>
+			<section className='space-y-4 text-lg'>
 				<p>
 					I'm an engineer, I <Link href='/software'>build things</Link> when I
 					see something that could be better.
