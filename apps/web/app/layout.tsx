@@ -4,7 +4,7 @@ import { Agentation } from 'agentation'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Lora } from 'next/font/google'
 import Script from 'next/script'
-import { NavBar } from './components/navbar'
+import { SiteHeader } from './components/site-header'
 import { SourceLink } from './components/source'
 import { Providers } from './providers'
 
@@ -33,7 +33,7 @@ export default function RootLayout({
 				<Providers>
 					<main className='min-h-screen p-6'>
 						<div className='sm:max-w-lg sm:mx-auto space-y-8'>
-							<NavBar />
+							<SiteHeader />
 
 							{children}
 						</div>
