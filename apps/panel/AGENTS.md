@@ -1,7 +1,16 @@
 # panel
 
-TanStack Start data backend (Effect v4 beta + sqlite). Serves an Effect `HttpApi` at
-`/api/v1/*` for `apps/web` to consume — GitHub domain + API v1 land in a follow-up phase.
+TanStack Start data backend (Effect v4 beta + sqlite). Serves an Effect `HttpApi`
+(`@repo/api-contract`) at `/api/v1/*` for `apps/web` to consume — activity feed +
+projects, backed by a toggle over my GitHub repos.
+
+## Env
+
+- `GITHUB_TOKEN` — optional at boot (the whole shared runtime would otherwise refuse to
+  start for every request, not just GitHub-touching ones); required for `/repos`,
+  `/api/v1/activity`, and `/api/v1/projects` to actually return data. A missing token
+  fails those specific calls with a `GithubError`, nothing else.
+- `GITHUB_USERNAME` — defaults to `farreldarian`.
 
 ## Server functions — isolate them
 
@@ -40,3 +49,21 @@ them in sync), not the v3 API most examples online show:
   `scripts/better-auth/generate.ts` + `scripts/better-auth/auth-schema.grit`.
 - `entries/better-auth.ts` — CLI-only entrypoint (dummy DB + config layers) so the
   better-auth CLI can introspect `Auth`'s config without a real database.
+- `src/server/repos/drizzle.ts` — the `repos` table (co-located with the domain, per
+  convention — not under `db/models/`, which is reserved for generated schemas).
+  `isPersonalProject` toggle, `tags`, `status`/`year`. `drizzle.config.ts`'s `schema`
+  glob picks up both `db/models/*` (generated) and `**/drizzle.ts` (hand-written).
+- `src/server/github/service.ts` — GitHub REST client (`Github` service): my owned
+  repos and merged PRs. Token is read via `Config.option` (not required), see "Env".
+- `src/server/api/` — the HttpApi v1 server: `handlers.ts` (`FeedApiLive`, implements
+  `@repo/api-contract`'s `FeedGroup`), `auth-middleware.ts` (`ApiKeyAuthLive`, verifies
+  the `Authorization` header against better-auth's api-key store), `web-handler.ts`
+  (composes everything + Scalar docs at `/api/v1/docs`, mounted at
+  `src/routes/api/v1/$.ts` via `HttpRouter.toWebHandler` — v4's replacement for v3's
+  `HttpApiBuilder.toWebHandler`, gone in this beta).
+  - **Gotcha**: per-handler `Requires` (e.g. `Github`/`Repos` used inside a handler
+    body) are only excluded from the web handler's `(request, context)` signature when
+    they're visible in the *output* of the fully composed layer — providing them via
+    plain `Layer.provide` satisfies the requirement internally but drops them from that
+    output, leaving a phantom required second argument. Use `Layer.provideMerge` for
+    whichever layer supplies them (see `web-handler.ts`).

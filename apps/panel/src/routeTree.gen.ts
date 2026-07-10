@@ -12,6 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AuthAuthViewRouteImport } from './routes/auth/$authView'
+import { Route as AppReposRouteImport } from './routes/_app/repos'
+import { Route as AppApiKeysRouteImport } from './routes/_app/api-keys'
+import { Route as ApiV1SplatRouteImport } from './routes/api/v1/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const AppRouteRoute = AppRouteRouteImport.update({
@@ -28,6 +31,21 @@ const AuthAuthViewRoute = AuthAuthViewRouteImport.update({
   path: '/auth/$authView',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppReposRoute = AppReposRouteImport.update({
+  id: '/repos',
+  path: '/repos',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppApiKeysRoute = AppApiKeysRouteImport.update({
+  id: '/api-keys',
+  path: '/api-keys',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const ApiV1SplatRoute = ApiV1SplatRouteImport.update({
+  id: '/api/v1/$',
+  path: '/api/v1/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -36,33 +54,63 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
+  '/api-keys': typeof AppApiKeysRoute
+  '/repos': typeof AppReposRoute
   '/auth/$authView': typeof AuthAuthViewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/v1/$': typeof ApiV1SplatRoute
 }
 export interface FileRoutesByTo {
+  '/api-keys': typeof AppApiKeysRoute
+  '/repos': typeof AppReposRoute
   '/auth/$authView': typeof AuthAuthViewRoute
   '/': typeof AppIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/v1/$': typeof ApiV1SplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteRouteWithChildren
+  '/_app/api-keys': typeof AppApiKeysRoute
+  '/_app/repos': typeof AppReposRoute
   '/auth/$authView': typeof AuthAuthViewRoute
   '/_app/': typeof AppIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/v1/$': typeof ApiV1SplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth/$authView' | '/api/auth/$'
+  fullPaths:
+    | '/'
+    | '/api-keys'
+    | '/repos'
+    | '/auth/$authView'
+    | '/api/auth/$'
+    | '/api/v1/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth/$authView' | '/' | '/api/auth/$'
-  id: '__root__' | '/_app' | '/auth/$authView' | '/_app/' | '/api/auth/$'
+  to:
+    | '/api-keys'
+    | '/repos'
+    | '/auth/$authView'
+    | '/'
+    | '/api/auth/$'
+    | '/api/v1/$'
+  id:
+    | '__root__'
+    | '/_app'
+    | '/_app/api-keys'
+    | '/_app/repos'
+    | '/auth/$authView'
+    | '/_app/'
+    | '/api/auth/$'
+    | '/api/v1/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AppRouteRoute: typeof AppRouteRouteWithChildren
   AuthAuthViewRoute: typeof AuthAuthViewRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiV1SplatRoute: typeof ApiV1SplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -88,6 +136,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthAuthViewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/repos': {
+      id: '/_app/repos'
+      path: '/repos'
+      fullPath: '/repos'
+      preLoaderRoute: typeof AppReposRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/api-keys': {
+      id: '/_app/api-keys'
+      path: '/api-keys'
+      fullPath: '/api-keys'
+      preLoaderRoute: typeof AppApiKeysRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/api/v1/$': {
+      id: '/api/v1/$'
+      path: '/api/v1/$'
+      fullPath: '/api/v1/$'
+      preLoaderRoute: typeof ApiV1SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -99,10 +168,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteRouteChildren {
+  AppApiKeysRoute: typeof AppApiKeysRoute
+  AppReposRoute: typeof AppReposRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppApiKeysRoute: AppApiKeysRoute,
+  AppReposRoute: AppReposRoute,
   AppIndexRoute: AppIndexRoute,
 }
 
@@ -114,6 +187,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRouteRoute: AppRouteRouteWithChildren,
   AuthAuthViewRoute: AuthAuthViewRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiV1SplatRoute: ApiV1SplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
