@@ -4,16 +4,14 @@ import { Suspense } from 'react'
 import { getActivity, listProjects } from '@/lib/panel'
 import { ActivityRow } from '../components/activity-row'
 import { ProjectsExplorer } from './projects-explorer'
+import { SoftwareTabs } from './software-tabs'
 
 // Backed by a live panel API — can't be known at build time.
 export const dynamic = 'force-dynamic'
 
 export default function SoftwarePage() {
 	return (
-		<Tabs.Root
-			defaultValue='projects'
-			render={<section className='space-y-4' />}
-		>
+		<SoftwareTabs>
 			<div className='space-y-2'>
 				<Tabs.List className='flex items-center gap-4'>
 					<SubTab value='projects' title='Projects' />
@@ -46,7 +44,7 @@ export default function SoftwarePage() {
 					<ContributionsSection />
 				</Suspense>
 			</Tabs.Panel>
-		</Tabs.Root>
+		</SoftwareTabs>
 	)
 }
 

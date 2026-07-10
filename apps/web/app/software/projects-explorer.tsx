@@ -2,17 +2,26 @@
 
 import { ArchiveIcon } from '@phosphor-icons/react/dist/ssr/Archive'
 import type { Project } from '@repo/api-contract'
-import { useMemo, useState } from 'react'
+import { debounce, parseAsArrayOf, parseAsString, useQueryState } from 'nuqs'
+import { useMemo } from 'react'
 import { cn } from '@/lib/utils'
 
-/** Search + tag filter chips over an already-fetched project list, with two-line project rows (active/archived status). */
+const searchParser = parseAsString
+	.withDefault('')
+	.withOptions({ limitUrlUpdates: debounce(300) })
+
+const tagsParser = parseAsArrayOf(parseAsString).withDefault([])
+
+/** Search + tag filter chips over an already-fetched project list, with two-line project rows (active/archived status). State lives in `?q=`/`?tags=` so the filtered view is shareable and survives refresh/back. */
 export function ProjectsExplorer({
 	projects,
 }: {
 	projects: readonly Project[]
 }) {
-	const [search, setSearch] = useState('')
-	const [activeTags, setActiveTags] = useState<ReadonlySet<string>>(new Set())
+	const [search, setSearch] = useQueryState('q', searchParser)
+	const [activeTags, setActiveTags] = useQueryState('tags', tagsParser)
+
+	const activeTagSet = useMemo(() => new Set(activeTags), [activeTags])
 
 	const tags = useMemo(
 		() =>
@@ -28,21 +37,18 @@ export function ProjectsExplorer({
 				project.name.toLowerCase().includes(query) ||
 				project.description.toLowerCase().includes(query)
 			const matchesTags =
-				activeTags.size === 0 || project.tags.some((tag) => activeTags.has(tag))
+				activeTagSet.size === 0 ||
+				project.tags.some((tag) => activeTagSet.has(tag))
 			return matchesQuery && matchesTags
 		})
-	}, [projects, search, activeTags])
+	}, [projects, search, activeTagSet])
 
 	function toggleTag(tag: string) {
-		setActiveTags((current) => {
-			const next = new Set(current)
-			if (next.has(tag)) {
-				next.delete(tag)
-			} else {
-				next.add(tag)
-			}
-			return next
-		})
+		setActiveTags((current) =>
+			current.includes(tag)
+				? current.filter((activeTag) => activeTag !== tag)
+				: [...current, tag]
+		)
 	}
 
 	return (
@@ -63,7 +69,7 @@ export function ProjectsExplorer({
 							onClick={() => toggleTag(tag)}
 							className={cn(
 								'rounded-full border px-3 py-1 text-xs transition-colors',
-								activeTags.has(tag)
+								activeTagSet.has(tag)
 									? 'border-foreground text-foreground'
 									: 'border-border text-muted-foreground hover:border-foreground/50'
 							)}
