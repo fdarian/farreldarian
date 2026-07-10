@@ -1,8 +1,8 @@
-import '@styles/global.css'
+import '@/styles/global.css'
 import { Analytics } from '@vercel/analytics/react'
 import { Agentation } from 'agentation'
 import type { Metadata } from 'next'
-import { Lora } from 'next/font/google'
+import { Geist, Geist_Mono, Lora } from 'next/font/google'
 import Script from 'next/script'
 import { NavBar } from './components/navbar'
 import { SourceLink } from './components/source'
@@ -14,6 +14,8 @@ export const metadata: Metadata = {
 }
 
 const lora = Lora({ variable: '--font-serif' })
+const geist = Geist({ variable: '--font-sans', subsets: ['latin'] })
+const geistMono = Geist_Mono({ variable: '--font-mono', subsets: ['latin'] })
 
 const umamiUrl = process.env.NEXT_PUBLIC_UMAMI_URL
 const umamiWebsiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID
@@ -26,7 +28,7 @@ export default function RootLayout({
 	return (
 		<html lang='en' suppressHydrationWarning>
 			<body
-				className={`${lora.variable} font-serif font-light text-foreground bg-background antialiased`}
+				className={`${lora.variable} ${geist.variable} ${geistMono.variable} font-serif font-light text-foreground bg-background antialiased`}
 			>
 				<Providers>
 					<main className='min-h-screen p-6'>

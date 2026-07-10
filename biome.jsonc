@@ -11,7 +11,10 @@
 			"semicolons": "asNeeded"
 		}
 	},
-	"css": { "linter": { "enabled": false } },
+	"css": {
+		"linter": { "enabled": false },
+		"parser": { "tailwindDirectives": true }
+	},
 	"linter": { "enabled": true, "rules": { "recommended": true } },
 	"assist": { "actions": { "source": { "organizeImports": "on" } } }
 }

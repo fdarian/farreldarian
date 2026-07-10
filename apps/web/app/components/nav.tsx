@@ -1,4 +1,4 @@
-import { cn } from 'utils/class'
+import { cn } from '@/lib/utils'
 
 export function Nav({
 	children,

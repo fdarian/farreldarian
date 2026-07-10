@@ -2,5 +2,19 @@
 	"$schema": "https://biomejs.dev/schemas/2.5.3/schema.json",
 	"root": false,
 	"extends": ["../../biome.jsonc"],
-	"files": { "includes": ["**", "!next-env.d.ts"] }
+	"files": { "includes": ["**", "!next-env.d.ts"] },
+	"overrides": [
+		{
+			"includes": ["components/ui/**"],
+			"linter": {
+				"rules": {
+					"a11y": {
+						"noSvgWithoutTitle": "off",
+						"noStaticElementInteractions": "off",
+						"useSemanticElements": "off"
+					}
+				}
+			}
+		}
+	]
 }

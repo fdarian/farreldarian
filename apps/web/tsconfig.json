@@ -4,10 +4,7 @@
 		"jsx": "react-jsx",
 		"baseUrl": ".",
 		"paths": {
-			"@components/*": ["components/*"],
-			"@lib/*": ["lib/*"],
-			"@public/*": ["public/*"],
-			"@styles/*": ["styles/*"]
+			"@/*": ["./*"]
 		},
 		"incremental": true,
 		"plugins": [
