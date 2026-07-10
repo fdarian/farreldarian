@@ -1,7 +1,16 @@
 import { Tabs } from '@base-ui/react/tabs'
+import type { ActivityItem } from '@repo/api-contract'
+import NextLink from 'next/link'
 import type { AnchorHTMLAttributes } from 'react'
+import { getActivity } from '@/lib/panel'
+import { ActivityRow } from './components/activity-row'
 
-export default function IndexPage() {
+// Activity is backed by a live panel API — can't be known at build time.
+export const dynamic = 'force-dynamic'
+
+export default async function IndexPage() {
+	const activity = await getActivity()
+
 	return (
 		<>
 			<section className='space-y-4'>
@@ -10,20 +19,25 @@ export default function IndexPage() {
 					philosophical principles guide the design of intelligent systems.
 				</p>
 
-				{/*<p>
-          Currently building{' '}
-          <Link href='https://netra.live' external>
-            Netra
-          </Link>{' '}
-          as CTO. Previously at{' '}
-          <Link href='https://www.gdplabs.id/' external>
-            GDP Labs
-          </Link>
-          .
-        </p>*/}
+				<p>
+					I'm an engineer, I build things when I see something that could be
+					better. I think a lot about abstraction, philosophy, and music.
+				</p>
+
+				<p>
+					I work on agents at Risedle. I also advise{' '}
+					<Link href='https://atur.ai' external>
+						atur.ai
+					</Link>{' '}
+					and{' '}
+					<Link href='https://artistlive.id' external>
+						artistlive.id
+					</Link>
+					, both of which I started as technical founder.
+				</p>
 			</section>
 
-			<section className='flex gap-6 text-lg flex-wrap'>
+			<section className='flex flex-wrap gap-6 text-lg'>
 				<Link href='mailto:farrel@fdarian.com' external>
 					Mail
 				</Link>
@@ -39,11 +53,15 @@ export default function IndexPage() {
 			</section>
 
 			<Tabs.Root
-				defaultValue='projects'
+				defaultValue='activity'
 				render={<section className='space-y-2' />}
 			>
 				<Tabs.List className='flex items-center gap-3'>
-					<Tab title='Projects' value='projects' number='5' />
+					<Tab
+						title='Activity'
+						value='activity'
+						number={activity.projects.length + activity.openSource.length}
+					/>
 					<Tab
 						title='Experience'
 						value='exp'
@@ -51,32 +69,20 @@ export default function IndexPage() {
 					/>
 					<Tab title='Talks' value='talks' number='2' />
 				</Tabs.List>
+				<div className='h-[0.5px] w-full bg-border' />
 
-				<Tabs.Panel value='projects' className='space-y-4'>
-					<Project
-						name='better-pm'
-						href='https://github.com/fdarian/better-pm'
-						description='Shortcut package manager CLI for all projects, replacing switching between pnpm and bun'
+				<Tabs.Panel value='activity' className='space-y-6'>
+					<ActivityGroup
+						title='Projects'
+						seeAllLabel='All projects'
+						seeAllHref='/software'
+						items={activity.projects.slice(0, 3)}
 					/>
-					<Project
-						name='agent-dash'
-						href='https://github.com/fdarian/agent-dash'
-						description='Easier way to manage multiple Claude Code sessions'
-					/>
-					<Project
-						name='tmux-sessions'
-						href='https://github.com/fdarian/tmux-sessions'
-						description='A better default tmux session switcher, batteries included'
-					/>
-					<Project
-						name='ff'
-						href='https://github.com/fdarian/ff'
-						description='A set of reusable utilities, covering AI SDK and Effect TS'
-					/>
-					<Project
-						name='lazygit.nvim'
-						href='https://github.com/fdarian/lazygit.nvim'
-						description='Lazygit integration in Neovim that works as expected'
+					<ActivityGroup
+						title='Open Source'
+						seeAllLabel='All contributions'
+						seeAllHref='/software'
+						items={activity.openSource.slice(0, 3)}
 					/>
 				</Tabs.Panel>
 
@@ -125,33 +131,34 @@ export default function IndexPage() {
 					/>
 				</Tabs.Panel>
 			</Tabs.Root>
-
-			{/*<Section title='Music' className='flex items-center gap-6'>
-        <Link href='https://soundcloud.com/dearen' external>
-          Soundcloud
-        </Link>
-        <Link href='https://music.apple.com/profile/farreldarian' external>
-          Apple Music
-        </Link>
-      </Section>*/}
 		</>
 	)
 }
 
-function Project(props: { name: string; href: string; description: string }) {
+function ActivityGroup(props: {
+	title: string
+	seeAllLabel: string
+	seeAllHref: string
+	items: ActivityItem[]
+}) {
+	if (props.items.length === 0) return null
+
 	return (
-		<div>
-			<div className='flex items-center gap-3 text-sm text-muted-foreground'>
-				<a
-					href={props.href}
-					target='_blank'
-					rel='noopener noreferrer'
-					className='border-b border-border hover:border-foreground transition-colors ease-out duration-100'
+		<div className='space-y-2'>
+			<div className='flex items-center justify-between'>
+				<p className='text-sm text-muted-foreground'>{props.title}</p>
+				<NextLink
+					href={props.seeAllHref}
+					className='border-b border-border text-sm transition-colors ease-out duration-100 hover:border-foreground'
 				>
-					{props.name}
-				</a>
+					{props.seeAllLabel} ↗
+				</NextLink>
 			</div>
-			<p className='font-medium'>{props.description}</p>
+			<div className='space-y-3'>
+				{props.items.map((item) => (
+					<ActivityRow key={item.href} item={item} />
+				))}
+			</div>
 		</div>
 	)
 }
@@ -175,7 +182,7 @@ function Talks(props: {
 					target='_blank'
 					rel='noopener noreferrer'
 					href={props.link}
-					className='border-b border-border hover:border-foreground transition-colors ease-out duration-100 text-xs'
+					className='border-b border-border text-xs transition-colors ease-out duration-100 hover:border-foreground'
 				>
 					Watch talk
 				</a>
@@ -201,10 +208,10 @@ function Tab(props: { value: string; title: string; number: React.ReactNode }) {
 	return (
 		<Tabs.Tab
 			value={props.value}
-			className='text-sm text-muted-foreground data-active:text-foreground cursor-pointer flex items-center gap-1.5'
+			className='flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground data-active:text-foreground'
 		>
 			<span>{props.title}</span>
-			<span className='text-[10px] text-muted-foreground rounded-full bg-muted border-[0.5px] border-border leading-[10px] px-1 py-0.5'>
+			<span className='rounded-full border-[0.5px] border-border bg-muted px-1 py-0.5 text-[10px] text-muted-foreground leading-[10px]'>
 				{props.number}{' '}
 			</span>
 		</Tabs.Tab>
@@ -218,7 +225,7 @@ type LinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
 function Link({ children, external, ...rest }: LinkProps) {
 	return (
 		<a
-			className='border-b border-border hover:border-foreground transition-colors ease-out duration-100 text-sm'
+			className='border-b border-border text-sm transition-colors ease-out duration-100 hover:border-foreground'
 			{...(external && {
 				target: '_blank',
 				rel: 'noopener noreferrer',
