@@ -55,10 +55,13 @@ export class Contributions extends Context.Service<Contributions>()(
 						.orderBy(desc(mergedPullRequests.mergedAt))
 				)
 
-			const upsertPage = (items: ReadonlyArray<GithubSearchIssue>) =>
-				db.use((client) =>
-					Promise.all(
-						items.filter(hasMergedAt).map((item) =>
+			const upsertPage = (
+				items: ReadonlyArray<GithubSearchIssue>
+			): Effect.Effect<number, DbError> =>
+				db.use((client) => {
+					const merged = items.filter(hasMergedAt)
+					return Promise.all(
+						merged.map((item) =>
 							client
 								.insert(mergedPullRequests)
 								.values({
@@ -81,8 +84,8 @@ export class Contributions extends Context.Service<Contributions>()(
 									},
 								})
 						)
-					)
-				)
+					).then(() => merged.length)
+				})
 
 			const countIssues = (query: string): Effect.Effect<number, GithubError> =>
 				github
@@ -92,39 +95,38 @@ export class Contributions extends Context.Service<Contributions>()(
 			const fetchAndUpsertPage = (
 				query: string,
 				page: number
-			): Effect.Effect<void, GithubError | DbError> =>
+			): Effect.Effect<number, GithubError | DbError> =>
 				github
 					.searchIssues(query, { page, perPage: PER_PAGE })
 					.pipe(Effect.flatMap((result) => upsertPage(result.items)))
 
 			// Sequential on purpose — respects the 30 req/min search rate limit via
 			// the fixed delay after each page, rather than firing pages concurrently.
+			// Returns the number of PRs upserted across all pages.
 			const fetchAllPages = (
 				query: string,
 				totalCount: number
-			): Effect.Effect<void, GithubError | DbError> => {
+			): Effect.Effect<number, GithubError | DbError> => {
 				const pageCount = Math.min(
 					Math.ceil(totalCount / PER_PAGE),
 					SEARCH_RESULT_CAP / PER_PAGE
 				)
 				const pages = Array.from({ length: pageCount }, (_, i) => i + 1)
-				return Effect.forEach(
-					pages,
-					(page) =>
-						fetchAndUpsertPage(query, page).pipe(
-							Effect.tap(() => Effect.sleep(RATE_LIMIT_DELAY))
-						),
-					{ discard: true }
-				)
+				return Effect.forEach(pages, (page) =>
+					fetchAndUpsertPage(query, page).pipe(
+						Effect.tap(() => Effect.sleep(RATE_LIMIT_DELAY))
+					)
+				).pipe(Effect.map((counts) => counts.reduce((a, b) => a + b, 0)))
 			}
 
 			// Works around the Search API's 1000-result cap by bisecting the
 			// `merged:` date window until each slice's `total_count` fits under it,
-			// then paging through that slice normally.
+			// then paging through that slice normally. Returns the number of PRs
+			// upserted across the whole window.
 			const fetchWindow = (
 				since: Date,
 				until: Date
-			): Effect.Effect<void, GithubError | DbError> =>
+			): Effect.Effect<number, GithubError | DbError> =>
 				Effect.gen(function* () {
 					const query = `author:${github.username} is:pr is:merged merged:${isoDate(since)}..${isoDate(until)}`
 					const totalCount = yield* countIssues(query).pipe(
@@ -134,9 +136,8 @@ export class Contributions extends Context.Service<Contributions>()(
 					const canSplit = until.getTime() - since.getTime() > ONE_DAY_MS
 					if (totalCount > SEARCH_RESULT_CAP && canSplit) {
 						const midpoint = new Date((since.getTime() + until.getTime()) / 2)
-						yield* fetchWindow(since, midpoint)
-						yield* fetchWindow(midpoint, until)
-						return
+						const synced = yield* fetchWindow(since, midpoint)
+						return synced + (yield* fetchWindow(midpoint, until))
 					}
 
 					if (totalCount > SEARCH_RESULT_CAP) {
@@ -145,10 +146,10 @@ export class Contributions extends Context.Service<Contributions>()(
 						)
 					}
 
-					yield* fetchAllPages(query, totalCount)
+					return yield* fetchAllPages(query, totalCount)
 				})
 
-			const backfill = (): Effect.Effect<void, GithubError | DbError> =>
+			const backfill = (): Effect.Effect<number, GithubError | DbError> =>
 				fetchWindow(HISTORY_START, new Date())
 
 			const lastSyncedUpdatedAt = (): Effect.Effect<
@@ -163,9 +164,17 @@ export class Contributions extends Context.Service<Contributions>()(
 					)
 					.pipe(Effect.map((rows) => Option.fromNullishOr(rows[0]?.value)))
 
+			const hasHistory = (): Effect.Effect<boolean, DbError> =>
+				lastSyncedUpdatedAt().pipe(Effect.map(Option.isSome))
+
 			// Cheap catch-up for subsequent runs — only fetches what changed since
-			// the last sync instead of re-walking all of history.
-			const incrementalSync = (): Effect.Effect<void, GithubError | DbError> =>
+			// the last sync instead of re-walking all of history. Returns the
+			// number of PRs upserted (0 when nothing has changed, or when nothing
+			// has synced yet — see below).
+			const incrementalSync = (): Effect.Effect<
+				number,
+				GithubError | DbError
+			> =>
 				Effect.gen(function* () {
 					const since = yield* lastSyncedUpdatedAt()
 
@@ -177,7 +186,7 @@ export class Contributions extends Context.Service<Contributions>()(
 						yield* Effect.logWarning(
 							'[contributions] no history synced yet — run `bun contributions:backfill`'
 						)
-						return
+						return 0
 					}
 
 					const query = `author:${github.username} is:pr is:merged updated:>=${since.value.toISOString()}`
@@ -191,7 +200,7 @@ export class Contributions extends Context.Service<Contributions>()(
 						)
 					}
 
-					yield* fetchAllPages(query, totalCount)
+					return yield* fetchAllPages(query, totalCount)
 				})
 
 			// Fire-and-forget on boot: keeps the table warm without blocking app
@@ -208,7 +217,7 @@ export class Contributions extends Context.Service<Contributions>()(
 				)
 				.pipe(Effect.forkDetach)
 
-			return { list, backfill, incrementalSync }
+			return { list, backfill, incrementalSync, hasHistory }
 		}),
 	}
 ) {

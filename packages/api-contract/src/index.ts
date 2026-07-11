@@ -1,8 +1,9 @@
-export { FeedGroup, PanelApi } from './api.ts'
+export { ContributionsGroup, FeedGroup, PanelApi } from './api.ts'
 export { ApiKeyAuth, CurrentApiCaller, Unauthorized } from './auth.ts'
 export {
 	ActivityItem,
 	ActivityResponse,
+	ContributionsSyncResponse,
 	Project,
 	ProjectsQuery,
 	ProjectsResponse,
