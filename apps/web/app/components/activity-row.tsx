@@ -11,16 +11,25 @@ import { RelativeTime } from '@/app/components/relative-time'
  */
 export function ActivityRow({ item }: { item: ActivityItem }) {
 	return (
-		<div className='flex items-center gap-3 text-sm'>
-			<a
-				href={item.externalUrl ?? item.href}
-				target='_blank'
-				rel='noopener noreferrer'
-				className='min-w-0 flex-1 truncate border-b border-border text-foreground transition-colors ease-out duration-100 hover:border-foreground'
-			>
-				{item.title}
-			</a>
-			<p className='shrink-0 text-muted-foreground'>{item.repo}</p>
+		<div className='flex items-center justify-between gap-6 text-sm'>
+			<div className='flex items-center gap-3 min-w-0'>
+				<a
+					href={item.externalUrl ?? item.href}
+					target='_blank'
+					rel='noopener noreferrer'
+					className='min-w-0 truncate border-b border-border text-foreground transition-colors ease-out duration-100 hover:border-foreground'
+				>
+					{item.title}
+				</a>
+				<a
+					href={`https://github.com/${item.repo}`}
+					target='_blank'
+					rel='noopener noreferrer'
+					className='shrink-0 text-muted-foreground transition-colors hover:text-foreground border-border border-b hover:border-muted-foreground'
+				>
+					{item.repo}
+				</a>
+			</div>
 			<div className='flex w-28 shrink-0 items-center justify-end gap-1.5 text-xs text-muted-foreground'>
 				<span className='shrink-0'>
 					<RelativeTime iso={item.updatedAt} />
@@ -34,10 +43,9 @@ export function ActivityRow({ item }: { item: ActivityItem }) {
 							href={item.externalUrl ?? item.href}
 							target='_blank'
 							rel='noopener noreferrer'
-							className='flex shrink-0 items-center gap-0.5 transition-colors hover:text-foreground'
+							className='flex shrink-0 items-center gap-0.5 transition-colors hover:text-foreground border-b border-border hover:border-muted-foreground'
 						>
 							#{item.number}
-							<ArrowUpRightIcon size={12} />
 						</a>
 					</>
 				)}
