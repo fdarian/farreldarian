@@ -26,6 +26,11 @@ export class Project extends Schema.Class<Project>('Project')({
 	status: Schema.Literals(['active', 'archived']),
 	year: Schema.optional(Schema.Number),
 	updatedAt: Schema.optional(Schema.String),
+	// Both optional — a repo only has these once it's been (re-)synced from
+	// GitHub; omitted rather than defaulted to 0/an epoch date for repos that
+	// haven't yet.
+	stars: Schema.optional(Schema.Number),
+	pushedAt: Schema.optional(Schema.String),
 }) {}
 
 export class ProjectsQuery extends Schema.Class<ProjectsQuery>('ProjectsQuery')(
