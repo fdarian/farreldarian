@@ -122,7 +122,6 @@ function ProjectRow({ project }: { project: Project }) {
 						{primaryTag}
 					</span>
 				)}
-				<div className='h-px flex-1 bg-border' />
 				{isArchived && (
 					<span className='flex shrink-0 items-center gap-1 text-[10px] text-muted-foreground'>
 						<ArchiveIcon size={10} />
