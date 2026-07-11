@@ -3,7 +3,6 @@
 	"style": "new-york",
 	"rsc": false,
 	"tsx": true,
-	"base": "base",
 	"tailwind": {
 		"config": "",
 		"css": "src/globals.css",
@@ -20,6 +19,6 @@
 		"hooks": "#/hooks"
 	},
 	"registries": {
-		"@base": "https://coss.com/ui"
+		"@coss": "https://coss.com/ui/r/{name}.json"
 	}
 }
