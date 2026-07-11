@@ -5,7 +5,7 @@ import { connection } from 'next/server'
 import type { AnchorHTMLAttributes } from 'react'
 import { cache, Suspense } from 'react'
 import { getActivity } from '@/lib/panel'
-import { ActivityRow, type ActivityRowVariant } from './components/activity-row'
+import { ActivityRow } from './components/activity-row'
 
 // Both the Activity panel and the tab's count badge need this — cache() dedupes
 // the fetch to a single call per request instead of two independent round-trips.
@@ -182,14 +182,12 @@ async function ActivitySection() {
 				seeAllLabel='All projects'
 				seeAllHref='/software'
 				items={activity.projects.slice(0, 3)}
-				variant='project'
 			/>
 			<ActivityGroup
 				title='Open Source'
 				seeAllLabel='All contributions'
 				seeAllHref='/software?tab=contributions'
 				items={activity.openSource.slice(0, 3)}
-				variant='open-source'
 			/>
 		</>
 	)
@@ -216,7 +214,6 @@ function ActivityGroup(props: {
 	seeAllLabel: string
 	seeAllHref: string
 	items: ActivityItem[]
-	variant: ActivityRowVariant
 }) {
 	if (props.items.length === 0) return null
 
@@ -233,7 +230,7 @@ function ActivityGroup(props: {
 			</div>
 			<div className='space-y-3'>
 				{props.items.map((item) => (
-					<ActivityRow key={item.href} item={item} variant={props.variant} />
+					<ActivityRow key={item.href} item={item} />
 				))}
 			</div>
 		</div>
