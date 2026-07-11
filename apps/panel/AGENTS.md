@@ -71,6 +71,12 @@ them in sync), not the v3 API most examples online show:
   convention — not under `db/models/`, which is reserved for generated schemas).
   `isPersonalProject` toggle, `tags`, `status`/`year`. `drizzle.config.ts`'s `schema`
   glob picks up both `db/models/*` (generated) and `**/drizzle.ts` (hand-written).
+- `src/server/tags/` — metadata over the tag strings living in `repos.tags` (no
+  separate tag entity otherwise): pin/order tags for the web "Highlights" tabs,
+  a description per tag, and a per-tag repo priority order (`tags.projectOrder`,
+  any repo carrying the tag). A metadata row is created lazily on first edit — tags
+  with no row still list with defaults. `/tags` route drag-reorders both via
+  `@dnd-kit`.
 - `src/server/github/service.ts` — GitHub REST client (`Github` service): my owned
   repos + a generic `/search/issues` wrapper. Token is read via `Config.option` (not
   required), see "Env".

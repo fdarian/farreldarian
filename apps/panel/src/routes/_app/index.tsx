@@ -21,6 +21,9 @@ function Dashboard() {
 				<Link to='/contributions' className='underline underline-offset-4'>
 					Contributions
 				</Link>
+				<Link to='/tags' className='underline underline-offset-4'>
+					Tags
+				</Link>
 				<Link to='/api-keys' className='underline underline-offset-4'>
 					API keys
 				</Link>
