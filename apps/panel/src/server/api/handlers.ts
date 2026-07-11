@@ -82,6 +82,8 @@ export const FeedApiLive = HttpApiBuilder.group(PanelApi, 'feed', (handlers) =>
 							status: row.status,
 							year: row.year ?? undefined,
 							updatedAt: row.updatedAt.toISOString(),
+							stars: row.stargazersCount ?? undefined,
+							pushedAt: row.pushedAt?.toISOString(),
 						})
 				)
 			}).pipe(Effect.orDie)
