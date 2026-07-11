@@ -1,6 +1,7 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { SearchIcon } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { Button } from '#/components/ui/button.tsx'
 import {
 	Combobox,
 	ComboboxChip,
@@ -27,6 +28,15 @@ export const Route = createFileRoute('/_app/repos')({
 
 type Repo = Awaited<ReturnType<typeof listRepos>>[number]
 
+type PersonalFilter = 'all' | 'personal' | 'not-personal'
+
+const personalFilters: ReadonlyArray<{ value: PersonalFilter; label: string }> =
+	[
+		{ value: 'all', label: 'All' },
+		{ value: 'personal', label: 'Personal only' },
+		{ value: 'not-personal', label: 'Not personal' },
+	]
+
 function matchesSearch(repo: Repo, query: string) {
 	const term = query.trim().toLowerCase()
 	if (term === '') return true
@@ -36,13 +46,23 @@ function matchesSearch(repo: Repo, query: string) {
 	)
 }
 
+function matchesPersonalFilter(repo: Repo, filter: PersonalFilter) {
+	if (filter === 'personal') return repo.isPersonalProject
+	if (filter === 'not-personal') return !repo.isPersonalProject
+	return true
+}
+
 function ReposPage() {
 	const repos = Route.useLoaderData()
 	const router = useRouter()
 	const refresh = () => router.invalidate()
 	const [search, setSearch] = useState('')
+	const [personalFilter, setPersonalFilter] = useState<PersonalFilter>('all')
 
-	const visibleRepos = repos.filter((repo) => matchesSearch(repo, search))
+	const visibleRepos = repos.filter(
+		(repo) =>
+			matchesSearch(repo, search) && matchesPersonalFilter(repo, personalFilter)
+	)
 	const tagSuggestions = useMemo(
 		() => Array.from(new Set(repos.flatMap((repo) => repo.tags))).sort(),
 		[repos]
@@ -54,12 +74,29 @@ function ReposPage() {
 			<p className='text-muted-foreground text-sm'>
 				Toggle which GitHub repos count as personal projects.
 			</p>
-			<Input
-				className='max-w-xs'
-				onChange={(e) => setSearch(e.target.value)}
-				placeholder='Search by name or owner…'
-				value={search}
-			/>
+			<div className='flex flex-wrap items-center gap-2'>
+				<Input
+					className='max-w-xs'
+					onChange={(e) => setSearch(e.target.value)}
+					placeholder='Search by name or owner…'
+					value={search}
+				/>
+				<div className='flex items-center gap-1'>
+					{personalFilters.map((filter) => (
+						<Button
+							key={filter.value}
+							onClick={() => setPersonalFilter(filter.value)}
+							size='sm'
+							type='button'
+							variant={
+								personalFilter === filter.value ? 'secondary' : 'outline'
+							}
+						>
+							{filter.label}
+						</Button>
+					))}
+				</div>
+			</div>
 			<div className='divide-y rounded-lg border'>
 				{visibleRepos.map((repo) => (
 					<RepoRow
