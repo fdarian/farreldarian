@@ -6,6 +6,11 @@ projects, backed by a toggle over my GitHub repos.
 
 ## Env
 
+Secrets live in Infisical (`.infisical.json`), not a committed `.env`. Run the panel with
+them injected: `bun env:run -- bun dev` (`env:run` → `infisical run --path=/fdariancom/panel --`).
+Plain `bun dev` boots **without** them, so `/repos` and the GitHub-backed `/api/v1/*`
+endpoints fail with `GithubError`. `bun env:inject` dumps the same vars in dotenv format.
+
 - `GITHUB_TOKEN` — optional at boot (the whole shared runtime would otherwise refuse to
   start for every request, not just GitHub-touching ones); required for `/repos`,
   `/api/v1/activity`, and `/api/v1/projects` to actually return data. A missing token
