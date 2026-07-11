@@ -15,6 +15,8 @@ export type GithubRepo = {
 	owner: string
 	name: string
 	description: string | null
+	stargazersCount: number
+	pushedAt: string | null
 }
 
 /** One item of a `/search/issues` page — always a PR, since we only ever query `is:pr`. */
@@ -38,6 +40,8 @@ type GithubApiRepo = {
 	owner: { login: string }
 	name: string
 	description: string | null
+	stargazers_count: number
+	pushed_at: string | null
 }
 
 type GithubSearchIssuesResponse = {
@@ -114,6 +118,8 @@ export class Github extends Context.Service<Github>()('server/github', {
 						owner: item.owner.login,
 						name: item.name,
 						description: item.description,
+						stargazersCount: item.stargazers_count,
+						pushedAt: item.pushed_at,
 					}))
 				)
 			)

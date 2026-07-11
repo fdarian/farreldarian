@@ -6,6 +6,15 @@ import { repos } from './drizzle.ts'
 
 export type RepoStatus = 'active' | 'archived'
 
+const toRepoValues = (item: GithubRepo) => ({
+	githubId: item.githubId,
+	owner: item.owner,
+	name: item.name,
+	description: item.description,
+	stargazersCount: item.stargazersCount,
+	pushedAt: item.pushedAt === null ? null : new Date(item.pushedAt),
+})
+
 /** The toggled-personal-project subset of my GitHub repos, plus their tags/status. */
 export class Repos extends Context.Service<Repos>()('server/repos', {
 	make: Effect.gen(function* () {
@@ -19,19 +28,22 @@ export class Repos extends Context.Service<Repos>()('server/repos', {
 		const upsertFromGithub = (items: ReadonlyArray<GithubRepo>) =>
 			db.use((client) =>
 				Promise.all(
-					items.map((item) =>
-						client
+					items.map((item) => {
+						const values = toRepoValues(item)
+						return client
 							.insert(repos)
-							.values(item)
+							.values(values)
 							.onConflictDoUpdate({
 								target: repos.githubId,
 								set: {
-									owner: item.owner,
-									name: item.name,
-									description: item.description,
+									owner: values.owner,
+									name: values.name,
+									description: values.description,
+									stargazersCount: values.stargazersCount,
+									pushedAt: values.pushedAt,
 								},
 							})
-					)
+					})
 				)
 			)
 
