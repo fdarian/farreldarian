@@ -20,7 +20,7 @@ export function ActivityRow({ item }: { item: ActivityItem }) {
 			>
 				{item.title}
 			</a>
-			<p className='shrink-0 text-muted-foreground'>in {item.repo}</p>
+			<p className='shrink-0 text-muted-foreground'>{item.repo}</p>
 			<div className='flex w-28 shrink-0 items-center justify-end gap-1.5 text-xs text-muted-foreground'>
 				<span className='shrink-0'>
 					<RelativeTime iso={item.updatedAt} />
