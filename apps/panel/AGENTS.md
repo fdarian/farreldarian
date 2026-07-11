@@ -67,7 +67,17 @@ them in sync), not the v3 API most examples online show:
   `isPersonalProject` toggle, `tags`, `status`/`year`. `drizzle.config.ts`'s `schema`
   glob picks up both `db/models/*` (generated) and `**/drizzle.ts` (hand-written).
 - `src/server/github/service.ts` — GitHub REST client (`Github` service): my owned
-  repos and merged PRs. Token is read via `Config.option` (not required), see "Env".
+  repos + a generic `/search/issues` wrapper. Token is read via `Config.option` (not
+  required), see "Env".
+- `src/server/contributions/` — sqlite mirror of my merged PRs (`Contributions`
+  service, `drizzle.ts`'s `merged_pull_requests` table). `activity` reads this
+  instead of calling GitHub live — the Search API caps at 1000 results and
+  30 req/min, too little/slow for a per-request fetch. `bun contributions:backfill`
+  (`scripts/contributions/backfill.ts`) does a one-off full-history sync, bisecting
+  the `merged:` date window to stay under the 1000 cap; `Contributions` forks a
+  cheap `updated:>=`-windowed catch-up sync on boot (no-ops with a warning until
+  the backfill has run once); `syncContributions` (`contributions.functions.ts`) is
+  the same catch-up exposed as an authed on-demand server fn.
 - `src/server/api/` — the HttpApi v1 server: `handlers.ts` (`FeedApiLive`, implements
   `@repo/api-contract`'s `FeedGroup`), `auth-middleware.ts` (`ApiKeyAuthLive`, verifies
   the `Authorization` header against better-auth's api-key store), `web-handler.ts`

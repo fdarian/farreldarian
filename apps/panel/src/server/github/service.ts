@@ -17,12 +17,20 @@ export type GithubRepo = {
 	description: string | null
 }
 
-export type MergedPullRequest = {
+/** One item of a `/search/issues` page — always a PR, since we only ever query `is:pr`. */
+export type GithubSearchIssue = {
+	githubId: number
 	title: string
 	href: string
 	repo: string
 	number: number
 	updatedAt: string
+	mergedAt: string | null
+}
+
+export type GithubSearchIssuesPage = {
+	items: ReadonlyArray<GithubSearchIssue>
+	totalCount: number
 }
 
 type GithubApiRepo = {
@@ -33,12 +41,15 @@ type GithubApiRepo = {
 }
 
 type GithubSearchIssuesResponse = {
+	total_count: number
 	items: ReadonlyArray<{
+		id: number
 		title: string
 		html_url: string
 		number: number
 		updated_at: string
 		repository_url: string
+		pull_request?: { merged_at: string | null }
 	}>
 }
 
@@ -107,28 +118,41 @@ export class Github extends Context.Service<Github>()('server/github', {
 				)
 			)
 
-		const listMergedPullRequests = (): Effect.Effect<
-			ReadonlyArray<MergedPullRequest>,
-			GithubError
-		> =>
+		// Raw `/search/issues` access — the caller builds the `q` qualifier
+		// (author/merged/date-window/etc). Kept generic rather than baking a
+		// single "merged PRs" query in here, since `contributions/service.ts`
+		// needs to vary it (date-windowed backfill, `updated:` incremental
+		// sync) to work around the Search API's 1000-result cap.
+		const searchIssues = (
+			query: string,
+			options?: {
+				page?: number
+				perPage?: number
+				sort?: 'created' | 'updated'
+				order?: 'asc' | 'desc'
+			}
+		): Effect.Effect<GithubSearchIssuesPage, GithubError> =>
 			request<GithubSearchIssuesResponse>(
-				`/search/issues?q=${encodeURIComponent(`author:${username} is:pr is:merged`)}&sort=updated&order=desc&per_page=30`
+				`/search/issues?q=${encodeURIComponent(query)}&per_page=${options?.perPage ?? 30}&page=${options?.page ?? 1}&sort=${options?.sort ?? 'created'}&order=${options?.order ?? 'asc'}`
 			).pipe(
-				Effect.map((data) =>
-					data.items.map((item) => ({
+				Effect.map((data) => ({
+					totalCount: data.total_count,
+					items: data.items.map((item) => ({
+						githubId: item.id,
 						title: item.title,
 						href: item.html_url,
 						number: item.number,
 						updatedAt: item.updated_at,
+						mergedAt: item.pull_request?.merged_at ?? null,
 						repo: item.repository_url.replace(
 							'https://api.github.com/repos/',
 							''
 						),
-					}))
-				)
+					})),
+				}))
 			)
 
-		return { username, listOwnRepos, listMergedPullRequests }
+		return { username, listOwnRepos, searchIssues }
 	}),
 }) {
 	static layer = Layer.effect(Github, this.make)

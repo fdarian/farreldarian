@@ -2,10 +2,11 @@ import { mkdirSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { migrate } from 'drizzle-orm/bun-sqlite/migrator'
 import { Config, Context, Effect, Layer, Schema } from 'effect'
+import * as contributionsSchema from '../contributions/drizzle.ts'
 import * as reposSchema from '../repos/drizzle.ts'
 import * as authSchema from './models/auth.ts'
 
-const schema = { ...authSchema, ...reposSchema }
+const schema = { ...authSchema, ...reposSchema, ...contributionsSchema }
 
 export const databaseUrl = Config.string('DATABASE_URL').pipe(
 	Config.withDefault('./data/panel.sqlite')

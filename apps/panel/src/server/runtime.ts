@@ -6,6 +6,7 @@ import { Layer, ManagedRuntime } from 'effect'
 import { createRunPromiseUnwrapped } from '#/lib/effect/utils/run-promise-unwrapped.ts'
 import { AuthGoogle } from './auth/google.ts'
 import { Auth } from './auth.ts'
+import { Contributions } from './contributions/service.ts'
 import { Database } from './db/service.ts'
 import { Github } from './github/service.ts'
 import { Repos } from './repos/service.ts'
@@ -15,7 +16,10 @@ const layersInfra = Layer.mergeAll(
 	Database.layer,
 	AuthGoogle.layer,
 	Github.layer,
-	Repos.layer.pipe(Layer.provide(Database.layer))
+	Repos.layer.pipe(Layer.provide(Database.layer)),
+	Contributions.layer.pipe(
+		Layer.provide(Layer.mergeAll(Database.layer, Github.layer))
+	)
 )
 
 export const layerMain = layersCore.pipe(
