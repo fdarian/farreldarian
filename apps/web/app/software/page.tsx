@@ -6,45 +6,47 @@ import { ActivityRow } from '../components/activity-row'
 import { ProjectsExplorer } from './projects-explorer'
 import { SoftwareTabs } from './software-tabs'
 
-// Backed by a live panel API — can't be known at build time.
-export const dynamic = 'force-dynamic'
-
 export default function SoftwarePage() {
 	return (
-		<SoftwareTabs>
-			<div className='space-y-2'>
-				<Tabs.List className='flex items-center gap-4'>
-					<SubTab value='projects' title='Projects' />
-					<SubTab value='contributions' title='Contributions' />
-				</Tabs.List>
-				<div className='h-[0.5px] w-full bg-border' />
-			</div>
+		// SoftwareTabs reads the `?tab=` search param (via nuqs) — a Suspense
+		// boundary lets the rest of the shell prerender instead of the whole
+		// route being pulled into on-demand rendering.
+		<Suspense fallback={null}>
+			<SoftwareTabs>
+				<div className='space-y-2'>
+					<Tabs.List className='flex items-center gap-4'>
+						<SubTab value='projects' title='Projects' />
+						<SubTab value='contributions' title='Contributions' />
+					</Tabs.List>
+					<div className='h-[0.5px] w-full bg-border' />
+				</div>
 
-			<Tabs.Panel value='projects' className='space-y-4'>
-				<p className='text-sm text-muted-foreground'>
-					Things I've built — mostly tools that make my own workflow better.
-				</p>
-				<Suspense
-					fallback={
-						<p className='text-sm text-muted-foreground'>Loading projects…</p>
-					}
-				>
-					<ProjectsSection />
-				</Suspense>
-			</Tabs.Panel>
+				<Tabs.Panel value='projects' className='space-y-4'>
+					<p className='text-sm text-muted-foreground'>
+						Things I've built — mostly tools that make my own workflow better.
+					</p>
+					<Suspense
+						fallback={
+							<p className='text-sm text-muted-foreground'>Loading projects…</p>
+						}
+					>
+						<ProjectsSection />
+					</Suspense>
+				</Tabs.Panel>
 
-			<Tabs.Panel value='contributions' className='space-y-3'>
-				<Suspense
-					fallback={
-						<p className='text-sm text-muted-foreground'>
-							Loading contributions…
-						</p>
-					}
-				>
-					<ContributionsSection />
-				</Suspense>
-			</Tabs.Panel>
-		</SoftwareTabs>
+				<Tabs.Panel value='contributions' className='space-y-3'>
+					<Suspense
+						fallback={
+							<p className='text-sm text-muted-foreground'>
+								Loading contributions…
+							</p>
+						}
+					>
+						<ContributionsSection />
+					</Suspense>
+				</Tabs.Panel>
+			</SoftwareTabs>
+		</Suspense>
 	)
 }
 

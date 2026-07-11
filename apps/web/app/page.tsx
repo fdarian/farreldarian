@@ -1,13 +1,11 @@
 import { Tabs } from '@base-ui/react/tabs'
 import type { ActivityItem } from '@repo/api-contract'
 import NextLink from 'next/link'
+import { connection } from 'next/server'
 import type { AnchorHTMLAttributes } from 'react'
 import { cache, Suspense } from 'react'
 import { getActivity } from '@/lib/panel'
 import { ActivityRow, type ActivityRowVariant } from './components/activity-row'
-
-// Activity is backed by a live panel API — can't be known at build time.
-export const dynamic = 'force-dynamic'
 
 // Both the Activity panel and the tab's count badge need this — cache() dedupes
 // the fetch to a single call per request instead of two independent round-trips.
@@ -88,7 +86,11 @@ export default function IndexPage() {
 					<Tab
 						title='Experience'
 						value='exp'
-						number={`${new Date().getUTCFullYear() - 2021}y`}
+						number={
+							<Suspense fallback={null}>
+								<ExperienceYears />
+							</Suspense>
+						}
 					/>
 					<Tab title='Talks' value='talks' number='2' />
 				</Tabs.List>
@@ -201,6 +203,12 @@ async function ActivityCount() {
 	} catch {
 		return null
 	}
+}
+
+/** Isolated so the current year (unknowable at cache/build time) doesn't force the whole page dynamic. */
+async function ExperienceYears() {
+	await connection()
+	return <>{new Date().getUTCFullYear() - 2021}y</>
 }
 
 function ActivityGroup(props: {
