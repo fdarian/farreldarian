@@ -42,6 +42,24 @@ export class ProjectsQuery extends Schema.Class<ProjectsQuery>('ProjectsQuery')(
 
 export const ProjectsResponse = Schema.Array(Project)
 
+/** One repo carrying a pinned tag, in that tag's project-priority order. */
+export class HighlightProject extends Schema.Class<HighlightProject>(
+	'HighlightProject'
+)({
+	name: Schema.String,
+	description: Schema.String,
+	href: Schema.String,
+}) {}
+
+/** A pinned tag, rendered as a Highlight tab on the web. */
+export class Highlight extends Schema.Class<Highlight>('Highlight')({
+	tag: Schema.String,
+	description: Schema.optional(Schema.String),
+	projects: Schema.Array(HighlightProject),
+}) {}
+
+export const HighlightsResponse = Schema.Array(Highlight)
+
 /**
  * `mode: 'incremental'` — the common daily-cron path, ran synchronously;
  * `synced` is the number of PRs upserted. `mode: 'backfill-started'` — the

@@ -3,6 +3,7 @@ import { ApiKeyAuth } from './auth.ts'
 import {
 	ActivityResponse,
 	ContributionsSyncResponse,
+	HighlightsResponse,
 	ProjectsQuery,
 	ProjectsResponse,
 } from './schemas.ts'
@@ -15,6 +16,11 @@ export class FeedGroup extends HttpApiGroup.make('feed')
 		HttpApiEndpoint.get('projects', '/projects', {
 			query: ProjectsQuery,
 			success: ProjectsResponse,
+		})
+	)
+	.add(
+		HttpApiEndpoint.get('highlights', '/highlights', {
+			success: HighlightsResponse,
 		})
 	)
 	.middleware(ApiKeyAuth) {}

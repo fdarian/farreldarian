@@ -1,6 +1,8 @@
 import {
 	ActivityItem,
 	ActivityResponse,
+	Highlight,
+	HighlightProject,
 	PanelApi,
 	Project,
 } from '@repo/api-contract'
@@ -12,6 +14,7 @@ import {
 } from '#/server/contributions/service.ts'
 import { Github } from '#/server/github/service.ts'
 import { Repos } from '#/server/repos/service.ts'
+import { Tags } from '#/server/tags/service.ts'
 
 export const FeedApiLive = HttpApiBuilder.group(PanelApi, 'feed', (handlers) =>
 	handlers
@@ -84,6 +87,28 @@ export const FeedApiLive = HttpApiBuilder.group(PanelApi, 'feed', (handlers) =>
 							updatedAt: row.updatedAt.toISOString(),
 							stars: row.stargazersCount ?? undefined,
 							pushedAt: row.pushedAt?.toISOString(),
+						})
+				)
+			}).pipe(Effect.orDie)
+		)
+		.handle('highlights', () =>
+			Effect.gen(function* () {
+				const tags = yield* Tags
+				const highlightTags = yield* tags.listPinnedWithProjects()
+
+				return highlightTags.map(
+					(tag) =>
+						new Highlight({
+							tag: tag.name,
+							description: tag.description ?? undefined,
+							projects: tag.repos.map(
+								(repo) =>
+									new HighlightProject({
+										name: repo.name,
+										description: repo.description ?? '',
+										href: `https://github.com/${repo.owner}/${repo.name}`,
+									})
+							),
 						})
 				)
 			}).pipe(Effect.orDie)
