@@ -6,6 +6,7 @@ import {
 } from '@repo/api-contract'
 import { Effect } from 'effect'
 import { HttpApiBuilder } from 'effect/unstable/httpapi'
+import { Contributions } from '#/server/contributions/service.ts'
 import { Github } from '#/server/github/service.ts'
 import { Repos } from '#/server/repos/service.ts'
 
@@ -15,9 +16,13 @@ export const FeedApiLive = HttpApiBuilder.group(PanelApi, 'feed', (handlers) =>
 			Effect.gen(function* () {
 				const github = yield* Github
 				const repos = yield* Repos
+				const contributions = yield* Contributions
 
+				// Read from the sqlite mirror, not live GitHub — see
+				// `contributions/service.ts` for why (the Search API's 1000-result
+				// cap + 30-req/min rate limit make it unfit for a per-request fetch).
 				const [pullRequests, personalKeys] = yield* Effect.all([
-					github.listMergedPullRequests(),
+					contributions.list(),
 					repos.listPersonalKeys(),
 				])
 
@@ -34,7 +39,7 @@ export const FeedApiLive = HttpApiBuilder.group(PanelApi, 'feed', (handlers) =>
 							href: pr.href,
 							description: `#${pr.number} in ${pr.repo}`,
 							repo: pr.repo,
-							updatedAt: pr.updatedAt,
+							updatedAt: pr.mergedAt.toISOString(),
 							number: pr.number,
 						})
 				)
