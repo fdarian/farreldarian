@@ -1,5 +1,5 @@
 import { Tabs } from '@base-ui/react/tabs'
-import { ArrowUpRightIcon, SparkleIcon } from '@phosphor-icons/react/ssr'
+import { ArrowUpRightIcon } from '@phosphor-icons/react/ssr'
 import type { ActivityItem } from '@repo/api-contract'
 import NextLink from 'next/link'
 import { connection } from 'next/server'
@@ -7,6 +7,7 @@ import type { AnchorHTMLAttributes } from 'react'
 import { cache, Suspense } from 'react'
 import { getActivity } from '@/lib/panel'
 import { ActivityRow } from './components/activity-row'
+import { HighlightsCard } from './components/highlights-card'
 import { HomeTabs } from './components/home-tabs'
 import { HomeTab } from './components/home-tabs-value'
 
@@ -241,57 +242,6 @@ async function ActivityCount() {
 async function ExperienceYears() {
 	await connection()
 	return <>{new Date().getUTCFullYear() - 2021}y</>
-}
-
-const highlights = [
-	{
-		name: 'rskills',
-		description: 'Read any skills without installing them',
-	},
-	{
-		name: 'furl',
-		description: 'curl replacement to fetch web pages in markdown',
-	},
-	{
-		name: 'furl',
-		description: 'curl replacement to fetch web pages in markdown',
-	},
-]
-
-function HighlightsCard() {
-	return (
-		<div className='rounded-lg border-[0.5px] border-border bg-muted/60 p-[3px]'>
-			<div className='flex items-end justify-between gap-2 px-3'>
-				<div className='flex items-center gap-1.5 py-1'>
-					<SparkleIcon className='size-3 shrink-0 text-accent' />
-					<p className='text-sm font-medium text-muted-foreground'>
-						Highlights
-					</p>
-				</div>
-				<div className='flex text-xs'>
-					<span className='rounded-t-[5px] border border-b-0 border-border bg-background px-1.5 py-1 font-medium text-foreground'>
-						tool for agent
-					</span>
-					<span className='px-1.5 py-1 text-muted-foreground'>devtool</span>
-				</div>
-			</div>
-			<div className='space-y-2 rounded-md border border-border bg-background px-3 py-2'>
-				{highlights.map((highlight, index) => (
-					// biome-ignore lint/suspicious/noArrayIndexKey: hardcoded static list, order never changes
-					<HighlightRow key={index} {...highlight} />
-				))}
-			</div>
-		</div>
-	)
-}
-
-function HighlightRow(props: { name: string; description: string }) {
-	return (
-		<div className='flex items-center gap-4 text-sm'>
-			<span className='shrink-0 border-b border-border'>{props.name}</span>
-			<span className='text-muted-foreground'>{props.description}</span>
-		</div>
-	)
 }
 
 function ProjectsGroup(props: {
