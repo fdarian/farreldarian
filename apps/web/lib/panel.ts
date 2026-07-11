@@ -13,7 +13,7 @@ import {
 	HttpClientRequest,
 } from 'effect/unstable/http'
 import { HttpApiClient } from 'effect/unstable/httpapi'
-import { cacheLife } from 'next/cache'
+import { cacheLife, cacheTag } from 'next/cache'
 
 /** Reads and validates the panel API credentials, throwing when either is missing. */
 function panelCredentials() {
@@ -44,6 +44,10 @@ export async function getActivity(): Promise<
 	// Activity/projects change slowly (new commits, occasional PRs) — an hour
 	// of staleness is unnoticeable but saves a panel round-trip per request.
 	cacheLife('hours')
+	// Lets the panel force a fresh fetch on demand (see
+	// `apps/web/app/api/revalidate/route.ts`) once a sync actually lands new
+	// rows, instead of waiting out the full hour.
+	cacheTag('activity')
 
 	const { baseUrl, apiKey } = panelCredentials()
 	return Effect.runPromise(
@@ -63,6 +67,7 @@ export async function listProjects(
 ): Promise<(typeof ProjectsResponse)['Encoded']> {
 	'use cache'
 	cacheLife('hours')
+	cacheTag('projects')
 
 	const { baseUrl, apiKey } = panelCredentials()
 	return Effect.runPromise(
