@@ -127,7 +127,7 @@ function ProjectRow({ project }: { project: Project }) {
 						{primaryTag}
 					</span>
 				)}
-				{project.stars !== undefined && (
+				{project.stars !== undefined && project.stars > 0 && (
 					<Tooltip>
 						<TooltipTrigger className='flex shrink-0 items-center gap-1 text-[10px] text-muted-foreground'>
 							<StarIcon size={10} />
