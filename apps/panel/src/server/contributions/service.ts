@@ -1,11 +1,11 @@
-import { desc, max } from 'drizzle-orm'
+import { desc, eq, max } from 'drizzle-orm'
 import { Context, Effect, Layer, Option } from 'effect'
 import type { GithubError, GithubSearchIssue } from '#/server/github/service.ts'
 import { Github } from '#/server/github/service.ts'
 import { Revalidation } from '#/server/revalidation/service.ts'
 import type { DbError } from '../db/service.ts'
 import { Database } from '../db/service.ts'
-import { mergedPullRequests } from './drizzle.ts'
+import { excludedOrgs, mergedPullRequests } from './drizzle.ts'
 
 export type MergedPullRequest = {
 	githubId: number
@@ -15,6 +15,35 @@ export type MergedPullRequest = {
 	href: string
 	mergedAt: Date
 	updatedAt: Date
+}
+
+export type OpenSourceOrg = {
+	owner: string
+	excluded: boolean
+}
+
+export type OpenSourceContext = {
+	username: string
+	personalRepoKeys: ReadonlySet<string>
+}
+
+const ownerOf = (repo: string): string | undefined => repo.split('/')[0]
+
+/**
+ * True when a PR's repo counts as an "open source" contribution — not a
+ * toggled personal project, and not a repo I own (owned-but-untoggled repos
+ * shouldn't leak into open source just because nobody's flipped the toggle
+ * yet). Single source of truth: used by both the activity filter and the
+ * org-exclusion list below.
+ */
+export const isOpenSourceRepo = (
+	repo: string,
+	ctx: OpenSourceContext
+): boolean => {
+	const owner = ownerOf(repo)
+	if (owner === undefined) return false
+	if (ctx.personalRepoKeys.has(repo)) return false
+	return owner.toLowerCase() !== ctx.username.toLowerCase()
 }
 
 const PER_PAGE = 100
@@ -70,6 +99,53 @@ export class Contributions extends Context.Service<Contributions>()(
 						.from(mergedPullRequests)
 						.orderBy(desc(mergedPullRequests.mergedAt))
 				)
+
+			const listExcludedOwners = (): Effect.Effect<
+				ReadonlySet<string>,
+				DbError
+			> =>
+				db
+					.use((client) =>
+						client.select({ owner: excludedOrgs.owner }).from(excludedOrgs)
+					)
+					.pipe(Effect.map((rows) => new Set(rows.map((row) => row.owner))))
+
+			const excludeOrg = (owner: string): Effect.Effect<void, DbError> =>
+				db.use((client) =>
+					client.insert(excludedOrgs).values({ owner }).onConflictDoNothing()
+				)
+
+			const includeOrg = (owner: string): Effect.Effect<void, DbError> =>
+				db.use((client) =>
+					client.delete(excludedOrgs).where(eq(excludedOrgs.owner, owner))
+				)
+
+			// Every distinct owner behind an open-source PR, each flagged with
+			// whether it's currently excluded — feeds the panel's exclusion UI.
+			// Orgs are derived from what's actually in the DB, never hardcoded.
+			const listOpenSourceOrgs = (
+				ctx: OpenSourceContext
+			): Effect.Effect<ReadonlyArray<OpenSourceOrg>, DbError> =>
+				Effect.gen(function* () {
+					const rows = yield* db.use((client) =>
+						client
+							.selectDistinct({ repo: mergedPullRequests.repo })
+							.from(mergedPullRequests)
+					)
+					const excludedOwners = yield* listExcludedOwners()
+
+					const owners = new Set(
+						rows
+							.map((row) => row.repo)
+							.filter((repo) => isOpenSourceRepo(repo, ctx))
+							.map(ownerOf)
+							.filter((owner): owner is string => owner !== undefined)
+					)
+
+					return Array.from(owners)
+						.sort()
+						.map((owner) => ({ owner, excluded: excludedOwners.has(owner) }))
+				})
 
 			const upsertPage = (
 				items: ReadonlyArray<GithubSearchIssue>
@@ -235,7 +311,16 @@ export class Contributions extends Context.Service<Contributions>()(
 				)
 				.pipe(Effect.forkDetach)
 
-			return { list, backfill, incrementalSync, hasHistory }
+			return {
+				list,
+				backfill,
+				incrementalSync,
+				hasHistory,
+				listExcludedOwners,
+				listOpenSourceOrgs,
+				excludeOrg,
+				includeOrg,
+			}
 		}),
 	}
 ) {

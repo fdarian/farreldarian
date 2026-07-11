@@ -23,3 +23,15 @@ export const mergedPullRequests = sqliteTable(
 	},
 	(table) => [index('merged_pull_requests_merged_at_idx').on(table.mergedAt)]
 )
+
+/**
+ * GitHub orgs/owners whose open-source PRs are hidden from the activity feed
+ * (toggled from the panel's contributions-management UI). Never affects
+ * personal projects or repos I own — only the "open source" bucket.
+ */
+export const excludedOrgs = sqliteTable('excluded_orgs', {
+	owner: text().primaryKey(),
+	createdAt: integer({ mode: 'timestamp' })
+		.notNull()
+		.$defaultFn(() => new Date()),
+})

@@ -6,7 +6,10 @@ import {
 } from '@repo/api-contract'
 import { Effect } from 'effect'
 import { HttpApiBuilder } from 'effect/unstable/httpapi'
-import { Contributions } from '#/server/contributions/service.ts'
+import {
+	Contributions,
+	isOpenSourceRepo,
+} from '#/server/contributions/service.ts'
 import { Github } from '#/server/github/service.ts'
 import { Repos } from '#/server/repos/service.ts'
 
@@ -21,16 +24,19 @@ export const FeedApiLive = HttpApiBuilder.group(PanelApi, 'feed', (handlers) =>
 				// Read from the sqlite mirror, not live GitHub — see
 				// `contributions/service.ts` for why (the Search API's 1000-result
 				// cap + 30-req/min rate limit make it unfit for a per-request fetch).
-				const [pullRequests, personalKeys] = yield* Effect.all([
+				const [pullRequests, personalKeys, excludedOwners] = yield* Effect.all([
 					contributions.list(),
 					repos.listPersonalKeys(),
+					contributions.listExcludedOwners(),
 				])
 
 				const personalRepoKeys = new Set(
 					personalKeys.map((key) => `${key.owner}/${key.name}`)
 				)
-				const isOwnRepo = (repo: string) =>
-					repo.split('/')[0]?.toLowerCase() === github.username.toLowerCase()
+				const openSourceContext = {
+					username: github.username,
+					personalRepoKeys,
+				}
 
 				const items = pullRequests.map(
 					(pr) =>
@@ -44,15 +50,17 @@ export const FeedApiLive = HttpApiBuilder.group(PanelApi, 'feed', (handlers) =>
 						})
 				)
 
-				// A PR is "personal" if the repo is toggled `isPersonalProject` OR I
-				// own the repo (owned-but-untoggled repos shouldn't leak into open
-				// source just because nobody's flipped the toggle yet). "openSource"
-				// is only genuinely external repos.
+				// "openSource" is genuinely external repos (see `isOpenSourceRepo` for
+				// the personal/own-repo exclusions), minus any org the panel's
+				// contributions-management UI has toggled off. Exclusion never
+				// touches `projects` — personal projects and owned repos are unaffected.
 				return new ActivityResponse({
 					projects: items.filter((item) => personalRepoKeys.has(item.repo)),
-					openSource: items.filter(
-						(item) => !personalRepoKeys.has(item.repo) && !isOwnRepo(item.repo)
-					),
+					openSource: items.filter((item) => {
+						if (!isOpenSourceRepo(item.repo, openSourceContext)) return false
+						const owner = item.repo.split('/')[0]
+						return owner !== undefined && !excludedOwners.has(owner)
+					}),
 				})
 			}).pipe(Effect.orDie)
 		)
