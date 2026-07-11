@@ -273,7 +273,7 @@ function Experience(props: { place: string; year?: string; title: string }) {
 				<p>— {props.place}</p>
 				<p>{props.year}</p>
 			</div>
-			<p className='font-medium'>{props.title}</p>
+			<p>{props.title}</p>
 		</div>
 	)
 }
