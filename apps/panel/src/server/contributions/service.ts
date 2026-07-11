@@ -2,6 +2,7 @@ import { desc, max } from 'drizzle-orm'
 import { Context, Effect, Layer, Option } from 'effect'
 import type { GithubError, GithubSearchIssue } from '#/server/github/service.ts'
 import { Github } from '#/server/github/service.ts'
+import { Revalidation } from '#/server/revalidation/service.ts'
 import type { DbError } from '../db/service.ts'
 import { Database } from '../db/service.ts'
 import { mergedPullRequests } from './drizzle.ts'
@@ -43,6 +44,21 @@ export class Contributions extends Context.Service<Contributions>()(
 		make: Effect.gen(function* () {
 			const db = yield* Database
 			const github = yield* Github
+			const revalidation = yield* Revalidation
+
+			// Best-effort: a failed revalidation call must never fail the sync
+			// that triggered it — the web app just keeps serving its cached
+			// snapshot a bit longer (up to `cacheLife('hours')`) instead.
+			const notifyRevalidation = (): Effect.Effect<void> =>
+				revalidation
+					.revalidate()
+					.pipe(
+						Effect.catch((error) =>
+							Effect.logWarning('[contributions] revalidation failed').pipe(
+								Effect.annotateLogs({ error })
+							)
+						)
+					)
 
 			const list = (): Effect.Effect<
 				ReadonlyArray<MergedPullRequest>,
@@ -150,7 +166,9 @@ export class Contributions extends Context.Service<Contributions>()(
 				})
 
 			const backfill = (): Effect.Effect<number, GithubError | DbError> =>
-				fetchWindow(HISTORY_START, new Date())
+				fetchWindow(HISTORY_START, new Date()).pipe(
+					Effect.tap(() => notifyRevalidation())
+				)
 
 			const lastSyncedUpdatedAt = (): Effect.Effect<
 				Option.Option<Date>,
@@ -201,7 +219,7 @@ export class Contributions extends Context.Service<Contributions>()(
 					}
 
 					return yield* fetchAllPages(query, totalCount)
-				})
+				}).pipe(Effect.tap(() => notifyRevalidation()))
 
 			// Fire-and-forget on boot: keeps the table warm without blocking app
 			// startup or failing it when GitHub is unreachable/token is missing.

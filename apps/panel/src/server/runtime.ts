@@ -10,15 +10,19 @@ import { Contributions } from './contributions/service.ts'
 import { Database } from './db/service.ts'
 import { Github } from './github/service.ts'
 import { Repos } from './repos/service.ts'
+import { Revalidation } from './revalidation/service.ts'
 
 const layersCore = Auth.layer
 const layersInfra = Layer.mergeAll(
 	Database.layer,
 	AuthGoogle.layer,
 	Github.layer,
+	Revalidation.layer,
 	Repos.layer.pipe(Layer.provide(Database.layer)),
 	Contributions.layer.pipe(
-		Layer.provide(Layer.mergeAll(Database.layer, Github.layer))
+		Layer.provide(
+			Layer.mergeAll(Database.layer, Github.layer, Revalidation.layer)
+		)
 	)
 )
 

@@ -11,6 +11,11 @@ projects, backed by a toggle over my GitHub repos.
   `/api/v1/activity`, and `/api/v1/projects` to actually return data. A missing token
   fails those specific calls with a `GithubError`, nothing else.
 - `GITHUB_USERNAME` — defaults to `farreldarian`.
+- `WEB_REVALIDATE_URL` / `REVALIDATE_SECRET` — both optional; when set, a contributions
+  sync POSTs to `WEB_REVALIDATE_URL` (the web app's `/api/revalidate`) with
+  `Authorization: Bearer <REVALIDATE_SECRET>` to bust its `activity`/`projects` cache
+  tags early instead of waiting out `cacheLife('hours')`. Missing either just skips
+  the call (logged at debug), same "optional wiring" pattern as `GITHUB_TOKEN`.
 
 ## Dev server — `bun-process` runner required
 
@@ -77,7 +82,13 @@ them in sync), not the v3 API most examples online show:
   the `merged:` date window to stay under the 1000 cap; `Contributions` forks a
   cheap `updated:>=`-windowed catch-up sync on boot (no-ops with a warning until
   the backfill has run once); `syncContributions` (`contributions.functions.ts`) is
-  the same catch-up exposed as an authed on-demand server fn.
+  the same catch-up exposed as an authed on-demand server fn; `POST
+  /api/v1/contributions/sync` (`api/contributions-handlers.ts`, api-key-authed, for a
+  cron) runs the same incremental sync synchronously, or forks the full backfill in the
+  background if the table's still empty rather than blocking the request.
+- `src/server/revalidation/service.ts` — `Revalidation` service: POSTs to the web app's
+  revalidate endpoint after a sync commits rows (see "Env"). Failure is swallowed at the
+  call site (`contributions/service.ts`) — a sync must never fail because revalidation did.
 - `src/server/api/` — the HttpApi v1 server: `handlers.ts` (`FeedApiLive`, implements
   `@repo/api-contract`'s `FeedGroup`), `auth-middleware.ts` (`ApiKeyAuthLive`, verifies
   the `Authorization` header against better-auth's api-key store), `web-handler.ts`
