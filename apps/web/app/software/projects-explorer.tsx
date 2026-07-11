@@ -124,7 +124,7 @@ function ProjectRow({ project }: { project: Project }) {
 				{project.tags.map((tag) => (
 					<span
 						key={tag}
-						className='shrink-0 rounded-sm bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground'
+						className='shrink-0 rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground border-[0.5px] border-border'
 					>
 						{tag}
 					</span>
