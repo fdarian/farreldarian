@@ -26,7 +26,7 @@ export default function RootLayout({
 				className={`${lora.variable} ${geist.variable} ${geistMono.variable} font-serif text-foreground bg-background antialiased`}
 			>
 				<Providers>
-					<main className='min-h-screen px-5'>
+					<main className='min-h-screen px-5 pb-6'>
 						<div className='sm:max-w-2xl sm:mx-auto'>
 							<SiteHeader />
 

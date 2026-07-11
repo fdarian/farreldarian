@@ -13,14 +13,14 @@ export default function SoftwarePage() {
 		// route being pulled into on-demand rendering.
 		<Suspense fallback={null}>
 			<SoftwareTabs>
-				<div className='space-y-2'>
+				{/* The -mt-5 is to cancel the pt-5 we use for the handle after it's sticky */}
+				<div className='space-y-2 sticky top-0 -mt-5 pt-5 bg-background'>
 					<Tabs.List className='flex items-center gap-4'>
 						<SubTab value='projects' title='Projects' />
 						<SubTab value='contributions' title='Contributions' />
 					</Tabs.List>
 					<div className='h-[0.5px] w-full bg-border' />
 				</div>
-
 				<Tabs.Panel value='projects' className='space-y-4'>
 					<Suspense
 						fallback={
@@ -30,7 +30,6 @@ export default function SoftwarePage() {
 						<ProjectsSection />
 					</Suspense>
 				</Tabs.Panel>
-
 				<Tabs.Panel value='contributions' className='space-y-3'>
 					<Suspense
 						fallback={
