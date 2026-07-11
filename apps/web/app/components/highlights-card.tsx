@@ -2,45 +2,14 @@
 
 import { Tabs } from '@base-ui/react/tabs'
 import { PushPinIcon } from '@phosphor-icons/react/ssr'
+import type { Highlight } from '@repo/api-contract'
 import { useState } from 'react'
 
-const highlightTabs = [
-	{
-		value: 'agent',
-		label: 'tool for agent',
-		items: [
-			{
-				name: 'rskills',
-				description: 'Read any skills without installing them',
-			},
-			{
-				name: 'furl',
-				description: 'curl replacement to fetch web pages in markdown',
-			},
-			{
-				name: 'furl',
-				description: 'curl replacement to fetch web pages in markdown',
-			},
-		],
-	},
-	{
-		value: 'devtool',
-		label: 'devtool',
-		items: [
-			{
-				name: 'otheme',
-				description: 'opinionated theme for your terminal and editor',
-			},
-			{
-				name: 'dotfiles',
-				description: 'my personal development environment setup',
-			},
-		],
-	},
-]
+export function HighlightsCard(props: { highlights: readonly Highlight[] }) {
+	const firstHighlight = props.highlights[0]
+	const [tab, setTab] = useState<string | undefined>(firstHighlight?.tag)
 
-export function HighlightsCard() {
-	const [tab, setTab] = useState<string>('agent')
+	if (!firstHighlight) return null
 
 	return (
 		<Tabs.Root
@@ -58,29 +27,34 @@ export function HighlightsCard() {
 					</p>
 				</div>
 				<Tabs.List className='relative z-10 flex text-xs'>
-					{highlightTabs.map((highlight) => (
+					{props.highlights.map((highlight) => (
 						<Tabs.Tab
-							key={highlight.value}
-							value={highlight.value}
+							key={highlight.tag}
+							value={highlight.tag}
 							className='-mb-px cursor-pointer rounded-t-[5px] border border-b-0 border-transparent px-2 py-1 text-muted-foreground transition-colors data-active:border-border-muted data-active:bg-elevated data-active:font-medium data-active:text-foreground'
 						>
-							{highlight.label}
+							{highlight.tag}
 						</Tabs.Tab>
 					))}
 				</Tabs.List>
 			</div>
-			{highlightTabs.map((highlight) => (
+			{props.highlights.map((highlight) => (
 				<Tabs.Panel
-					key={highlight.value}
-					value={highlight.value}
+					key={highlight.tag}
+					value={highlight.tag}
 					className='space-y-2 rounded-[5px] border border-border-muted bg-elevated px-3 py-2'
 				>
-					{highlight.items.map((item, index) => (
+					{highlight.description && (
+						<p className='text-xs text-muted-foreground'>
+							{highlight.description}
+						</p>
+					)}
+					{highlight.projects.map((project) => (
 						<HighlightRow
-							// biome-ignore lint/suspicious/noArrayIndexKey: hardcoded static list, order never changes
-							key={index}
-							name={item.name}
-							description={item.description}
+							key={project.href}
+							name={project.name}
+							description={project.description}
+							href={project.href}
 						/>
 					))}
 				</Tabs.Panel>
@@ -89,10 +63,21 @@ export function HighlightsCard() {
 	)
 }
 
-function HighlightRow(props: { name: string; description: string }) {
+function HighlightRow(props: {
+	name: string
+	description: string
+	href: string
+}) {
 	return (
 		<div className='flex items-center gap-4 text-sm'>
-			<span className='shrink-0 border-b border-border'>{props.name}</span>
+			<a
+				target='_blank'
+				rel='noopener noreferrer'
+				href={props.href}
+				className='shrink-0 border-b border-border transition-colors ease-out duration-100 hover:border-foreground'
+			>
+				{props.name}
+			</a>
 			<span className='text-muted-foreground'>{props.description}</span>
 		</div>
 	)

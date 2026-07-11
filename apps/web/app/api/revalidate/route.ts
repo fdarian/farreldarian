@@ -10,9 +10,9 @@ function extractBearerToken(header: string | null): string | null {
 }
 
 /**
- * Lets the panel force `getActivity()`/`listProjects()` (`lib/panel.ts`) to
- * refetch instead of waiting out their hour-long `cacheLife` — called once a
- * contributions sync actually lands new rows.
+ * Lets the panel force `getActivity()`/`listProjects()`/`getHighlights()`
+ * (`lib/panel.ts`) to refetch instead of waiting out their hour-long
+ * `cacheLife` — called once a contributions sync actually lands new rows.
  */
 export async function POST(request: Request): Promise<Response> {
 	const secret = process.env.REVALIDATE_SECRET
@@ -27,6 +27,7 @@ export async function POST(request: Request): Promise<Response> {
 	// revalidation to that profile, not just the tag.
 	revalidateTag('activity', 'hours')
 	revalidateTag('projects', 'hours')
+	revalidateTag('highlights', 'hours')
 
 	return Response.json({ revalidated: true })
 }

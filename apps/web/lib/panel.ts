@@ -2,6 +2,7 @@ import 'server-only'
 
 import {
 	ActivityResponse,
+	HighlightsResponse,
 	PanelApi,
 	ProjectsQuery,
 	ProjectsResponse,
@@ -83,6 +84,26 @@ export async function listProjects(
 			// serialize across the server/client boundary — encode back to a
 			// plain object before returning.
 			return Schema.encodeSync(ProjectsResponse)(projects)
+		}).pipe(Effect.provide(FetchHttpClient.layer))
+	)
+}
+
+export async function getHighlights(): Promise<
+	(typeof HighlightsResponse)['Encoded']
+> {
+	'use cache'
+	cacheLife('hours')
+	cacheTag('highlights')
+
+	const { baseUrl, apiKey } = panelCredentials()
+	return Effect.runPromise(
+		Effect.gen(function* () {
+			const client = yield* makePanelClient(baseUrl, apiKey)
+			const highlights = yield* client.feed.highlights({})
+			// `Highlight`/`HighlightProject` decode into Schema.Class instances,
+			// which RSC can't serialize across the server/client boundary —
+			// encode back to a plain object before returning.
+			return Schema.encodeSync(HighlightsResponse)(highlights)
 		}).pipe(Effect.provide(FetchHttpClient.layer))
 	)
 }

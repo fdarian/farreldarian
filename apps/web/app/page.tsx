@@ -5,7 +5,7 @@ import NextLink from 'next/link'
 import { connection } from 'next/server'
 import type { AnchorHTMLAttributes } from 'react'
 import { cache, Suspense } from 'react'
-import { getActivity } from '@/lib/panel'
+import { getActivity, getHighlights } from '@/lib/panel'
 import { ActivityRow } from './components/activity-row'
 import { HighlightsCard } from './components/highlights-card'
 import { HomeTabs } from './components/home-tabs'
@@ -130,6 +130,9 @@ function TabsSection() {
 function ProjectsTab() {
 	return (
 		<Tabs.Panel value={HomeTab.Projects} className='space-y-6'>
+			<Suspense fallback={null}>
+				<HighlightsSection />
+			</Suspense>
 			<Suspense
 				fallback={
 					<p className='text-sm text-muted-foreground'>Loading activity…</p>
@@ -216,7 +219,6 @@ async function ProjectsSection() {
 
 	return (
 		<>
-			<HighlightsCard />
 			<ProjectsGroup
 				title='Activity'
 				seeAllLabel='All projects'
@@ -231,6 +233,16 @@ async function ProjectsSection() {
 			/>
 		</>
 	)
+}
+
+/** Isolated so a highlights fetch failure doesn't block the Activity/Open Source groups from rendering. */
+async function HighlightsSection() {
+	try {
+		const highlights = await getHighlights()
+		return <HighlightsCard highlights={highlights} />
+	} catch {
+		return null
+	}
 }
 
 /** Same cached fetch as ActivitySection (deduped via cache()) — degrades to no badge rather than a fake count. */
