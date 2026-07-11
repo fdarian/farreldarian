@@ -4,6 +4,7 @@
 	"type": "module",
 	"scripts": {
 		"env:inject": "infisical export --path=/fdariancom/panel --format=dotenv-export",
+		"env:run": "infisical run --path=/fdariancom/panel --",
 		"dev": "NITRO_DEV_RUNNER=bun-process vite dev",
 		"build": "vite build",
 		"start": "bun run .output/server/index.mjs",
