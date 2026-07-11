@@ -26,7 +26,7 @@ export default function IndexPage() {
 
 function HeroSection() {
 	return (
-		<section className='space-y-4 text-lg'>
+		<section className='space-y-4'>
 			<p>
 				I'm an engineer. I <Link href='/software'>build things</Link> when I see
 				something that could be better.
