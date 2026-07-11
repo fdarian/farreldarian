@@ -1,9 +1,10 @@
 'use client'
 
 import { Tabs } from '@base-ui/react/tabs'
-import { PushPinIcon } from '@phosphor-icons/react/ssr'
-import type { Highlight } from '@repo/api-contract'
+import { ClockClockwiseIcon, PushPinIcon } from '@phosphor-icons/react/ssr'
+import type { Highlight, HighlightProject } from '@repo/api-contract'
 import { useState } from 'react'
+import { RelativeTime } from '@/app/components/relative-time'
 
 export function HighlightsCard(props: { highlights: readonly Highlight[] }) {
 	const firstHighlight = props.highlights[0]
@@ -50,12 +51,7 @@ export function HighlightsCard(props: { highlights: readonly Highlight[] }) {
 						</p>
 					)}
 					{highlight.projects.map((project) => (
-						<HighlightRow
-							key={project.href}
-							name={project.name}
-							description={project.description}
-							href={project.href}
-						/>
+						<HighlightRow key={project.href} project={project} />
 					))}
 				</Tabs.Panel>
 			))}
@@ -63,22 +59,26 @@ export function HighlightsCard(props: { highlights: readonly Highlight[] }) {
 	)
 }
 
-function HighlightRow(props: {
-	name: string
-	description: string
-	href: string
-}) {
+function HighlightRow(props: { project: HighlightProject }) {
 	return (
 		<div className='flex items-center gap-4 text-sm'>
 			<a
 				target='_blank'
 				rel='noopener noreferrer'
-				href={props.href}
+				href={props.project.href}
 				className='shrink-0 border-b border-border transition-colors ease-out duration-100 hover:border-foreground'
 			>
-				{props.name}
+				{props.project.name}
 			</a>
-			<span className='text-muted-foreground'>{props.description}</span>
+			<span className='min-w-0 flex-1 truncate text-muted-foreground'>
+				{props.project.description}
+			</span>
+			{props.project.pushedAt !== undefined && (
+				<span className='flex shrink-0 items-center gap-1 text-[10px] text-muted-foreground'>
+					<ClockClockwiseIcon size={10} />
+					<RelativeTime iso={props.project.pushedAt} />
+				</span>
+			)}
 		</div>
 	)
 }
