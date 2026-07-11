@@ -108,7 +108,6 @@ function statusLabel(project: Project): string | undefined {
 
 function ProjectRow({ project }: { project: Project }) {
 	const isArchived = project.status === 'archived'
-	const primaryTag = project.tags[0]
 	const label = statusLabel(project)
 
 	return (
@@ -122,11 +121,14 @@ function ProjectRow({ project }: { project: Project }) {
 				>
 					{project.name}
 				</a>
-				{primaryTag && (
-					<span className='shrink-0 rounded-sm bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground'>
-						{primaryTag}
+				{project.tags.map((tag) => (
+					<span
+						key={tag}
+						className='shrink-0 rounded-sm bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground'
+					>
+						{tag}
 					</span>
-				)}
+				))}
 				{project.stars !== undefined && project.stars > 0 && (
 					<Tooltip>
 						<TooltipTrigger className='flex shrink-0 items-center gap-1 text-[10px] text-muted-foreground'>
