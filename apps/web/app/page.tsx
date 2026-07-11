@@ -223,7 +223,9 @@ function ActivityGroup(props: {
 	return (
 		<div className='space-y-2'>
 			<div className='flex items-center justify-between'>
-				<p className='text-sm text-muted-foreground'>{props.title}</p>
+				<p className='text-sm text-muted-foreground font-medium'>
+					{props.title}
+				</p>
 				<NextLink
 					href={props.seeAllHref}
 					className='border-b border-border text-sm transition-colors ease-out duration-100 hover:border-foreground inline-flex items-center gap-1'
