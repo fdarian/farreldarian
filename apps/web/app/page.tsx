@@ -248,7 +248,7 @@ function Talks(props: {
 }) {
 	return (
 		<div>
-			<div className='flex items-center gap-3 text-sm text-muted-foreground'>
+			<div className='flex items-center gap-3 text-sm text-muted-foreground font-medium'>
 				<p>
 					— {props.place}, {props.year}
 				</p>
@@ -263,7 +263,7 @@ function Talks(props: {
 					Watch talk
 				</a>
 			</div>
-			<p className='font-medium'>{props.title}</p>
+			<p>{props.title}</p>
 		</div>
 	)
 }
