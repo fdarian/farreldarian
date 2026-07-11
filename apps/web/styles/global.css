@@ -12,6 +12,10 @@
 	--color-border: var(--border);
 	--color-muted: var(--muted);
 	--color-muted-foreground: var(--muted-foreground);
+	--color-surface: var(--surface);
+	--color-elevated: var(--elevated);
+	--color-border-subtle: var(--border-subtle);
+	--color-border-muted: var(--border-muted);
 	--animate-skeleton: skeleton 2s -1s infinite linear;
 	--animate-caret-blink: 1s ease-out infinite caret-blink;
 	--animate-toast-success-odd: toast-success-odd 0.32s
@@ -145,13 +149,14 @@
 }
 
 :root {
-	--muted-foreground: color-mix(
-		in srgb,
-		var(--color-neutral-500) 90%,
-		var(--color-black)
-	);
-	--muted: --alpha(var(--color-black) / 4%);
-	--border: --alpha(var(--color-black) / 8%);
+	/* Palette mirrors the Paper design tokens (fdarian.com file) */
+	--muted-foreground: #78716c;
+	--muted: #e7e5e4;
+	--border: #d6d3d1;
+	--surface: #f5f5f4;
+	--elevated: #fdfcfa;
+	--border-subtle: rgb(214 211 209 / 10%);
+	--border-muted: rgb(214 211 209 / 50%);
 	--destructive-foreground: var(--color-red-700);
 	--info: var(--color-blue-500);
 	--info-foreground: var(--color-blue-700);
@@ -159,8 +164,8 @@
 	--success-foreground: var(--color-emerald-700);
 	--warning: var(--color-amber-500);
 	--warning-foreground: var(--color-amber-700);
-	--accent: --alpha(var(--color-black) / 4%);
-	--accent-foreground: var(--color-neutral-800);
+	--accent: #f97316;
+	--accent-foreground: #ffffff;
 	--card: var(--color-white);
 	--card-foreground: var(--color-neutral-800);
 	--destructive: var(--color-red-500);
@@ -193,24 +198,20 @@
 	--sidebar-primary: var(--color-neutral-800);
 	--sidebar-primary-foreground: var(--color-neutral-50);
 	--sidebar-ring: var(--color-neutral-400);
-	--background: var(--color-white);
-	--foreground: var(--color-neutral-800);
+	--background: #fafaf9;
+	--foreground: #0c0a09;
 }
 
 .dark {
-	--foreground: var(--color-neutral-100);
-	--muted-foreground: color-mix(
-		in srgb,
-		var(--color-neutral-500) 90%,
-		var(--color-white)
-	);
-	--muted: --alpha(var(--color-white) / 4%);
-	--background: color-mix(
-		in srgb,
-		var(--color-neutral-950) 95%,
-		var(--color-white)
-	);
-	--border: --alpha(var(--color-white) / 6%);
+	--foreground: #f5f5f5;
+	--muted-foreground: #a3a3a3;
+	--muted: #262626;
+	--background: #171717;
+	--border: #404040;
+	--surface: #1f1f1f;
+	--elevated: #2a2a2a;
+	--border-subtle: #222222;
+	--border-muted: #2c2c2c;
 	--destructive-foreground: var(--color-red-400);
 	--info: var(--color-blue-500);
 	--info-foreground: var(--color-blue-400);
@@ -218,8 +219,8 @@
 	--success-foreground: var(--color-emerald-400);
 	--warning: var(--color-amber-500);
 	--warning-foreground: var(--color-amber-400);
-	--accent: --alpha(var(--color-white) / 4%);
-	--accent-foreground: var(--color-neutral-100);
+	--accent: #f97316;
+	--accent-foreground: #ffffff;
 	--card: color-mix(in srgb, var(--background) 98%, var(--color-white));
 	--card-foreground: var(--color-neutral-100);
 	--destructive: color-mix(

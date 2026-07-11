@@ -33,7 +33,7 @@ export function SiteHeader() {
 								)}
 							>
 								{isActive && (
-									<CaretDoubleRightIcon size={12} className='text-orange-500' />
+									<CaretDoubleRightIcon size={12} className='text-accent' />
 								)}
 								{crumb.label}
 							</Link>
