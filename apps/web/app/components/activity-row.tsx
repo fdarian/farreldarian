@@ -1,6 +1,6 @@
 import { ArrowUpRightIcon } from '@phosphor-icons/react/dist/ssr/ArrowUpRight'
 import type { ActivityItem } from '@repo/api-contract'
-import { formatRelativeTime } from '@/lib/time'
+import { RelativeTime } from '@/app/components/relative-time'
 
 /**
  * One row of the Activity feed, with a right-aligned, fixed-width metadata
@@ -22,7 +22,9 @@ export function ActivityRow({ item }: { item: ActivityItem }) {
 			</a>
 			<p className='shrink-0 text-muted-foreground'>in {item.repo}</p>
 			<div className='flex w-28 shrink-0 items-center justify-end gap-1.5 text-xs text-muted-foreground'>
-				<span className='shrink-0'>{formatRelativeTime(item.updatedAt)}</span>
+				<span className='shrink-0'>
+					<RelativeTime iso={item.updatedAt} />
+				</span>
 				{item.number !== undefined && (
 					<>
 						<span aria-hidden className='shrink-0'>
