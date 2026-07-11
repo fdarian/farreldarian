@@ -7,6 +7,7 @@ import type { AnchorHTMLAttributes } from 'react'
 import { cache, Suspense } from 'react'
 import { getActivity } from '@/lib/panel'
 import { ActivityRow } from './components/activity-row'
+import { HomeTabs } from './components/home-tabs'
 
 // Both the Activity panel and the tab's count badge need this — cache() dedupes
 // the fetch to a single call per request instead of two independent round-trips.
@@ -72,10 +73,7 @@ export default function IndexPage() {
 				</div>
 			</section>
 
-			<Tabs.Root
-				defaultValue='activity'
-				render={<section className='space-y-2 mt-20' />}
-			>
+			<HomeTabs>
 				<Tabs.List className='flex items-center gap-3'>
 					<Tab
 						title='Activity'
@@ -153,7 +151,7 @@ export default function IndexPage() {
 						title='While pursuing my degree, I started my career teaching as a lab assistant'
 					/>
 				</Tabs.Panel>
-			</Tabs.Root>
+			</HomeTabs>
 		</>
 	)
 }
