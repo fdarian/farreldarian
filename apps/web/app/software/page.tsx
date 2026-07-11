@@ -1,10 +1,16 @@
 import { Tabs } from '@base-ui/react/tabs'
 import { CaretDoubleRightIcon } from '@phosphor-icons/react/dist/ssr/CaretDoubleRight'
-import { Suspense } from 'react'
+import { cache, Suspense } from 'react'
 import { getActivity, listProjects } from '@/lib/panel'
 import { ActivityRow } from '../components/activity-row'
+import { TabCount } from '../components/tab-count'
 import { ProjectsExplorer } from './projects-explorer'
 import { SoftwareTabs } from './software-tabs'
+
+// Both a section and its tab's count badge need this — cache() dedupes
+// the fetch to a single call per request instead of two independent round-trips.
+const getCachedProjects = cache(listProjects)
+const getCachedActivity = cache(getActivity)
 
 export default function SoftwarePage() {
 	return (
@@ -16,8 +22,24 @@ export default function SoftwarePage() {
 				{/* The -mt-5 is to cancel the pt-5 we use for the handle after it's sticky */}
 				<div className='space-y-2 sticky top-0 -mt-5 pt-5 bg-background'>
 					<Tabs.List className='flex items-center gap-4'>
-						<SubTab value='projects' title='Projects' />
-						<SubTab value='contributions' title='Contributions' />
+						<SubTab
+							value='projects'
+							title='Projects'
+							number={
+								<Suspense fallback={null}>
+									<ProjectsCount />
+								</Suspense>
+							}
+						/>
+						<SubTab
+							value='contributions'
+							title='Contributions'
+							number={
+								<Suspense fallback={null}>
+									<ContributionsCount />
+								</Suspense>
+							}
+						/>
 					</Tabs.List>
 					<div className='h-[0.5px] w-full bg-border' />
 				</div>
@@ -53,7 +75,7 @@ async function ProjectsSection() {
 		// listProjects() can throw synchronously (missing credentials) as well as
 		// reject asynchronously (network/API failure) — try/catch covers both,
 		// a `.catch()` chain would only cover the latter.
-		projects = await listProjects()
+		projects = await getCachedProjects()
 	} catch {
 		return (
 			<p className='text-sm text-muted-foreground'>
@@ -69,7 +91,7 @@ async function ProjectsSection() {
 async function ContributionsSection() {
 	let activity: Awaited<ReturnType<typeof getActivity>>
 	try {
-		activity = await getActivity()
+		activity = await getCachedActivity()
 	} catch {
 		return (
 			<p className='text-sm text-muted-foreground'>
@@ -93,13 +115,38 @@ async function ContributionsSection() {
 	)
 }
 
-function SubTab(props: { value: string; title: string }) {
+/** Same cached fetch as ProjectsSection (deduped via cache()) — degrades to no badge rather than a fake count. */
+async function ProjectsCount() {
+	try {
+		const projects = await getCachedProjects()
+		return <>{projects.length}</>
+	} catch {
+		return null
+	}
+}
+
+/** Same cached fetch as ContributionsSection (deduped via cache()) — degrades to no badge rather than a fake count. */
+async function ContributionsCount() {
+	try {
+		const activity = await getCachedActivity()
+		return <>{activity.openSource.length}</>
+	} catch {
+		return null
+	}
+}
+
+function SubTab(props: {
+	value: string
+	title: string
+	number?: React.ReactNode
+}) {
 	return (
 		<Tabs.Tab
 			value={props.value}
-			className='group flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground data-active:text-foreground font-medium'
+			className='group flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground data-active:text-foreground'
 		>
-			{props.title}
+			<span className='font-medium'>{props.title}</span>
+			{props.number !== undefined && <TabCount>{props.number}</TabCount>}
 		</Tabs.Tab>
 	)
 }

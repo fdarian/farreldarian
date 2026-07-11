@@ -10,6 +10,7 @@ import { ActivityRow } from './components/activity-row'
 import { HighlightsCard } from './components/highlights-card'
 import { HomeTabs } from './components/home-tabs'
 import { HomeTab } from './components/home-tabs-value'
+import { TabCount } from './components/tab-count'
 
 // Both the Activity panel and the tab's count badge need this — cache() dedupes
 // the fetch to a single call per request instead of two independent round-trips.
@@ -327,11 +328,7 @@ function Tab(props: {
 			className='group flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground data-active:text-foreground'
 		>
 			<span className='font-medium'>{props.title}</span>
-			{props.number !== undefined && (
-				<span className='rounded-full border-[0.5px] border-border bg-muted px-1 py-0.5 text-[10px] text-muted-foreground leading-[10px] group-data-active:text-foreground'>
-					{props.number}{' '}
-				</span>
-			)}
+			{props.number !== undefined && <TabCount>{props.number}</TabCount>}
 		</Tabs.Tab>
 	)
 }
