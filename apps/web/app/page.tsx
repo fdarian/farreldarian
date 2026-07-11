@@ -39,7 +39,9 @@ export default function IndexPage() {
 			</section>
 
 			<section className='flex items-center gap-5 mt-10'>
-				<p className='text-sm text-muted-foreground'>Let's connect</p>
+				<p className='text-sm text-muted-foreground font-medium'>
+					Let's connect
+				</p>
 				<div className='h-px w-16 shrink-0 bg-border' />
 				<div className='flex gap-6 text-sm'>
 					<Link href='mailto:farrel@fdarian.com' external>
@@ -269,7 +271,7 @@ function Talks(props: {
 function Experience(props: { place: string; year?: string; title: string }) {
 	return (
 		<div>
-			<div className='flex items-center gap-3 text-sm text-muted-foreground'>
+			<div className='flex items-center gap-3 text-sm text-muted-foreground font-medium'>
 				<p>— {props.place}</p>
 				<p>{props.year}</p>
 			</div>
@@ -288,7 +290,7 @@ function Tab(props: {
 			value={props.value}
 			className='group flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground data-active:text-foreground'
 		>
-			<span>{props.title}</span>
+			<span className='font-medium'>{props.title}</span>
 			{props.number !== undefined && (
 				<span className='rounded-full border-[0.5px] border-border bg-muted px-1 py-0.5 text-[10px] text-muted-foreground leading-[10px] group-data-active:text-foreground'>
 					{props.number}{' '}

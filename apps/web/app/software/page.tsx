@@ -101,7 +101,7 @@ function SubTab(props: { value: string; title: string }) {
 	return (
 		<Tabs.Tab
 			value={props.value}
-			className='group flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground data-active:text-foreground'
+			className='group flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground data-active:text-foreground font-medium'
 		>
 			<CaretDoubleRightIcon
 				size={12}

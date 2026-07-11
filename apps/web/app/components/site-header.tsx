@@ -18,7 +18,7 @@ export function SiteHeader() {
 	return (
 		<div className='space-y-2 pt-5 pb-10'>
 			<div className='flex items-center justify-between'>
-				<div className='flex items-center gap-3'>
+				<div className='flex items-center gap-3 font-medium'>
 					{crumbs.map((crumb) => {
 						const isActive = pathname === crumb.href
 						return (
