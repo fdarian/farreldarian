@@ -111,7 +111,11 @@ function TabsSection() {
 						</Suspense>
 					}
 				/>
-				<Tab title='Talks' value={HomeTab.Talks} number='2' />
+				<Tab
+					title='Talks'
+					value={HomeTab.Talks}
+					number={<TabCount>2</TabCount>}
+				/>
 			</Tabs.List>
 
 			<div className='h-[0.5px] w-full bg-border' />
@@ -233,7 +237,11 @@ async function ProjectsSection() {
 async function ActivityCount() {
 	try {
 		const activity = await getCachedActivity()
-		return <>{activity.projects.length + activity.openSource.length}</>
+		return (
+			<TabCount>
+				{activity.projects.length + activity.openSource.length}
+			</TabCount>
+		)
 	} catch {
 		return null
 	}
@@ -242,7 +250,7 @@ async function ActivityCount() {
 /** Isolated so the current year (unknowable at cache/build time) doesn't force the whole page dynamic. */
 async function ExperienceYears() {
 	await connection()
-	return <>{new Date().getUTCFullYear() - 2021}y</>
+	return <TabCount>{new Date().getUTCFullYear() - 2021}y</TabCount>
 }
 
 function ProjectsGroup(props: {
@@ -328,7 +336,7 @@ function Tab(props: {
 			className='group flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground data-active:text-foreground'
 		>
 			<span className='font-medium'>{props.title}</span>
-			{props.number !== undefined && <TabCount>{props.number}</TabCount>}
+			{props.number}
 		</Tabs.Tab>
 	)
 }

@@ -119,7 +119,7 @@ async function ContributionsSection() {
 async function ProjectsCount() {
 	try {
 		const projects = await getCachedProjects()
-		return <>{projects.length}</>
+		return <TabCount>{projects.length}</TabCount>
 	} catch {
 		return null
 	}
@@ -129,7 +129,7 @@ async function ProjectsCount() {
 async function ContributionsCount() {
 	try {
 		const activity = await getCachedActivity()
-		return <>{activity.openSource.length}</>
+		return <TabCount>{activity.openSource.length}</TabCount>
 	} catch {
 		return null
 	}
@@ -146,7 +146,7 @@ function SubTab(props: {
 			className='group flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground data-active:text-foreground'
 		>
 			<span className='font-medium'>{props.title}</span>
-			{props.number !== undefined && <TabCount>{props.number}</TabCount>}
+			{props.number}
 		</Tabs.Tab>
 	)
 }
