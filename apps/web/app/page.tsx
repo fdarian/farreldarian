@@ -28,7 +28,7 @@ function HeroSection() {
 	return (
 		<section className='space-y-4 text-lg'>
 			<p>
-				I'm an engineer, I <Link href='/software'>build things</Link> when I see
+				I'm an engineer. I <Link href='/software'>build things</Link> when I see
 				something that could be better.
 				<br />I think a lot about abstraction, philosophy, and{' '}
 				<Link href='https://music.apple.com/profile/fdarian' external>
