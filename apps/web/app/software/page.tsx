@@ -22,9 +22,6 @@ export default function SoftwarePage() {
 				</div>
 
 				<Tabs.Panel value='projects' className='space-y-4'>
-					<p className='text-sm text-muted-foreground'>
-						Things I've built — mostly tools that make my own workflow better.
-					</p>
 					<Suspense
 						fallback={
 							<p className='text-sm text-muted-foreground'>Loading projects…</p>
