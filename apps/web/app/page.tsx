@@ -1,4 +1,5 @@
 import { Tabs } from '@base-ui/react/tabs'
+import { ArrowUpRightIcon } from '@phosphor-icons/react/ssr'
 import type { ActivityItem } from '@repo/api-contract'
 import NextLink from 'next/link'
 import { connection } from 'next/server'
@@ -225,9 +226,10 @@ function ActivityGroup(props: {
 				<p className='text-sm text-muted-foreground'>{props.title}</p>
 				<NextLink
 					href={props.seeAllHref}
-					className='border-b border-border text-sm transition-colors ease-out duration-100 hover:border-foreground'
+					className='border-b border-border text-sm transition-colors ease-out duration-100 hover:border-foreground inline-flex items-center gap-1'
 				>
-					{props.seeAllLabel} ↗
+					<span>{props.seeAllLabel}</span>
+					<ArrowUpRightIcon className='size-3' />
 				</NextLink>
 			</div>
 			<div className='space-y-3'>
