@@ -2,9 +2,7 @@
 
 import { Tabs } from '@base-ui/react/tabs'
 import { type ReactNode, useState } from 'react'
-
-const homeTabValues = ['activity', 'exp', 'talks'] as const
-export type HomeTab = (typeof homeTabValues)[number]
+import { HomeTab } from './home-tabs-value'
 
 /**
  * Controlled (rather than `defaultValue`) so Activity stays selected across client-side nav
@@ -12,7 +10,7 @@ export type HomeTab = (typeof homeTabValues)[number]
  * transiently unregister, and `defaultValue` only seeds the very first mount.
  */
 export function HomeTabs(props: { children: ReactNode }) {
-	const [tab, setTab] = useState<HomeTab>('activity')
+	const [tab, setTab] = useState<HomeTab>(HomeTab.Projects)
 
 	return (
 		<Tabs.Root

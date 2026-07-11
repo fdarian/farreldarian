@@ -8,6 +8,7 @@ import { cache, Suspense } from 'react'
 import { getActivity } from '@/lib/panel'
 import { ActivityRow } from './components/activity-row'
 import { HomeTabs } from './components/home-tabs'
+import { HomeTab } from './components/home-tabs-value'
 
 // Both the Activity panel and the tab's count badge need this — cache() dedupes
 // the fetch to a single call per request instead of two independent round-trips.
@@ -76,8 +77,8 @@ export default function IndexPage() {
 			<HomeTabs>
 				<Tabs.List className='flex items-center gap-3'>
 					<Tab
-						title='Activity'
-						value='activity'
+						title='Projects'
+						value={HomeTab.Projects}
 						number={
 							<Suspense fallback={null}>
 								<ActivityCount />
@@ -86,28 +87,28 @@ export default function IndexPage() {
 					/>
 					<Tab
 						title='Experience'
-						value='exp'
+						value={HomeTab.Experience}
 						number={
 							<Suspense fallback={null}>
 								<ExperienceYears />
 							</Suspense>
 						}
 					/>
-					<Tab title='Talks' value='talks' number='2' />
+					<Tab title='Talks' value={HomeTab.Talks} number='2' />
 				</Tabs.List>
 				<div className='h-[0.5px] w-full bg-border' />
 
-				<Tabs.Panel value='activity' className='space-y-6'>
+				<Tabs.Panel value={HomeTab.Projects} className='space-y-6'>
 					<Suspense
 						fallback={
 							<p className='text-sm text-muted-foreground'>Loading activity…</p>
 						}
 					>
-						<ActivitySection />
+						<ProjectsSection />
 					</Suspense>
 				</Tabs.Panel>
 
-				<Tabs.Panel value='talks' className='space-y-4'>
+				<Tabs.Panel value={HomeTab.Talks} className='space-y-4'>
 					<Talks
 						place='Berlin'
 						year='2022'
@@ -124,7 +125,7 @@ export default function IndexPage() {
 					/>
 				</Tabs.Panel>
 
-				<Tabs.Panel value='exp' className='space-y-4'>
+				<Tabs.Panel value={HomeTab.Experience} className='space-y-4'>
 					<Experience
 						year='2023 - Present'
 						place='Risedle'
@@ -157,7 +158,7 @@ export default function IndexPage() {
 }
 
 /** Isolated so a GitHub outage only degrades the Activity tab — Experience/Talks render regardless. */
-async function ActivitySection() {
+async function ProjectsSection() {
 	let activity: Awaited<ReturnType<typeof getActivity>>
 	try {
 		// getActivity() can throw synchronously (missing credentials) as well as
@@ -178,13 +179,13 @@ async function ActivitySection() {
 
 	return (
 		<>
-			<ActivityGroup
-				title='Projects'
+			<ProjectsGroup
+				title='Activity'
 				seeAllLabel='All projects'
 				seeAllHref='/software'
 				items={activity.projects.slice(0, 3)}
 			/>
-			<ActivityGroup
+			<ProjectsGroup
 				title='Open Source'
 				seeAllLabel='All contributions'
 				seeAllHref='/software?tab=contributions'
@@ -210,7 +211,7 @@ async function ExperienceYears() {
 	return <>{new Date().getUTCFullYear() - 2021}y</>
 }
 
-function ActivityGroup(props: {
+function ProjectsGroup(props: {
 	title: string
 	seeAllLabel: string
 	seeAllHref: string
