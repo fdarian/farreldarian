@@ -23,7 +23,7 @@ export default function RootLayout({
 	return (
 		<html lang='en' suppressHydrationWarning>
 			<body
-				className={`${lora.variable} ${geist.variable} ${geistMono.variable} font-serif font-light text-foreground bg-background antialiased`}
+				className={`${lora.variable} ${geist.variable} ${geistMono.variable} font-serif text-foreground bg-background antialiased`}
 			>
 				<Providers>
 					<main className='min-h-screen px-5'>
