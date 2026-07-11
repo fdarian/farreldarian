@@ -25,14 +25,6 @@ projects, backed by a toggle over my GitHub repos.
 auth end-to-end under `vite dev`, including a live dev-email sign-in with a session
 cookie back and the allowlist correctly rejecting a non-allowlisted email.
 
-**Still open**: with the runner fix, `/api/v1/*` routes now 500 under `vite dev`
-specifically (`TypeError: undefined is not an object (evaluating 'that.build')` — looks
-like an Effect `Layer` build issue, plausibly from `src/server/api/web-handler.ts`'s
-module-level layers getting evaluated against two different module instances across
-Vite's dev SSR module graph). Not chased further — `/api/v1/*` is fully verified working
-in the **production build** (`vite build` + `bun run start`), which is what matters for
-deployment; only exercise it locally via that path until this is root-caused.
-
 ## Server functions — isolate them
 
 Server functions live in dedicated `*.functions.ts` files. **Never** mix them with
