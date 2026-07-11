@@ -1,9 +1,13 @@
 'use client'
 
-import { ArchiveIcon } from '@phosphor-icons/react/dist/ssr/Archive'
+import { ClockClockwiseIcon } from '@phosphor-icons/react/dist/ssr/ClockClockwise'
+import { PackageIcon } from '@phosphor-icons/react/dist/ssr/Package'
+import { StarIcon } from '@phosphor-icons/react/dist/ssr/Star'
 import type { Project } from '@repo/api-contract'
 import { debounce, parseAsArrayOf, parseAsString, useQueryState } from 'nuqs'
 import { useMemo } from 'react'
+import { RelativeTime } from '@/app/components/relative-time'
+import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 const searchParser = parseAsString
@@ -12,7 +16,7 @@ const searchParser = parseAsString
 
 const tagsParser = parseAsArrayOf(parseAsString).withDefault([])
 
-/** Search + tag filter chips over an already-fetched project list, with two-line project rows (active/archived status). State lives in `?q=`/`?tags=` so the filtered view is shareable and survives refresh/back. */
+/** Search + tag filter chips over an already-fetched project list, with two-line project rows (stars/last-updated when synced, archived status). State lives in `?q=`/`?tags=` so the filtered view is shareable and survives refresh/back. */
 export function ProjectsExplorer({
 	projects,
 }: {
@@ -94,20 +98,21 @@ export function ProjectsExplorer({
 	)
 }
 
-/** Active projects show a year when known, else "active"; archived projects always show an "archv" badge plus their year. */
-function statusLabel(project: Project): string {
-	if (project.status === 'archived') {
-		return project.year !== undefined ? String(project.year) : 'archived'
+/** Only archived projects show a status label — their year when known, else "archived". Active projects show nothing. */
+function statusLabel(project: Project): string | undefined {
+	if (project.status !== 'archived') {
+		return undefined
 	}
-	return project.year !== undefined ? String(project.year) : 'active'
+	return project.year !== undefined ? String(project.year) : 'archived'
 }
 
 function ProjectRow({ project }: { project: Project }) {
 	const isArchived = project.status === 'archived'
 	const primaryTag = project.tags[0]
+	const label = statusLabel(project)
 
 	return (
-		<div className={cn('space-y-1', isArchived && 'opacity-60')}>
+		<div className={cn('space-y-1', isArchived && 'opacity-50')}>
 			<div className='flex items-center gap-2 text-sm'>
 				<a
 					href={project.href}
@@ -122,15 +127,34 @@ function ProjectRow({ project }: { project: Project }) {
 						{primaryTag}
 					</span>
 				)}
+				{project.stars !== undefined && (
+					<Tooltip>
+						<TooltipTrigger className='flex shrink-0 items-center gap-1 text-[10px] text-muted-foreground'>
+							<StarIcon size={10} />
+							{project.stars}
+						</TooltipTrigger>
+						<TooltipPopup>starred</TooltipPopup>
+					</Tooltip>
+				)}
+				{project.pushedAt !== undefined && (
+					<Tooltip>
+						<TooltipTrigger className='flex shrink-0 items-center gap-1 text-[10px] text-muted-foreground'>
+							<ClockClockwiseIcon size={10} />
+							<RelativeTime iso={project.pushedAt} />
+						</TooltipTrigger>
+						<TooltipPopup>last updated</TooltipPopup>
+					</Tooltip>
+				)}
 				{isArchived && (
 					<span className='flex shrink-0 items-center gap-1 text-[10px] text-muted-foreground'>
-						<ArchiveIcon size={10} />
-						archv
+						<PackageIcon size={10} />
 					</span>
 				)}
-				<span className='shrink-0 text-muted-foreground text-xs'>
-					{statusLabel(project)}
-				</span>
+				{label && (
+					<span className='shrink-0 text-muted-foreground text-xs'>
+						{label}
+					</span>
+				)}
 			</div>
 			<p className='text-muted-foreground text-sm'>{project.description}</p>
 		</div>
