@@ -1,5 +1,4 @@
 import '@/styles/global.css'
-import { Analytics } from '@vercel/analytics/react'
 import { Agentation } from 'agentation'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Lora } from 'next/font/google'
@@ -37,7 +36,6 @@ export default function RootLayout({
 							{children}
 						</div>
 					</main>
-					<Analytics />
 					{umamiUrl && umamiWebsiteId && (
 						<Script
 							src={`${umamiUrl}/script.js`}
