@@ -15,6 +15,13 @@
       "when": 1783681084101,
       "tag": "0001_keen_riptide",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1783746865797,
+      "tag": "0002_loose_blazing_skull",
+      "breakpoints": true
     }
   ]
 }
