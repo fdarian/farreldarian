@@ -17,143 +17,174 @@ const getCachedActivity = cache(getActivity)
 export default function IndexPage() {
 	return (
 		<>
-			<section className='space-y-4 text-lg'>
-				<p>
-					I'm an engineer, I <Link href='/software'>build things</Link> when I
-					see something that could be better.
-					<br />I think a lot about abstraction, philosophy, and{' '}
-					<Link href='https://music.apple.com/profile/fdarian' external>
-						music
-					</Link>
-					.
-				</p>
-
-				<p>
-					Currently I work on agents at Risedle. I also advise{' '}
-					<Link href='https://atur.ai' external>
-						atur.ai
-					</Link>{' '}
-					and{' '}
-					<Link href='https://artistlive.id' external>
-						artistlive.id
-					</Link>
-					, both of which I started as technical founder.
-				</p>
-			</section>
-
-			<section className='flex items-center gap-5 mt-10'>
-				<p className='text-sm text-muted-foreground font-medium'>
-					Let's connect
-				</p>
-				<div className='h-px w-16 shrink-0 bg-border' />
-				<div className='flex gap-6 text-sm'>
-					<Link href='mailto:farrel@fdarian.com' external>
-						Mail
-					</Link>
-					<Link href='https://www.linkedin.com/in/farreldarian/' external>
-						LinkedIn
-					</Link>
-					<Link href='https://twitter.com/farreldarian' external>
-						<svg
-							viewBox='593.869 607.502 11.746 12.01'
-							width='12'
-							height='12'
-							xmlns='http://www.w3.org/2000/svg'
-							className='shrink-0'
-							aria-label='X'
-						>
-							<path
-								d='M600.963 612.755L604.748 608.655h-0.896L600.564 612.216 597.939 608.655H594.91l3.971 5.383L594.91 618.338h0.897l3.471-3.76 2.774 3.76H605.08L600.963 612.755h0ZM599.734 614.086l-0.403-0.537-3.2-4.266h1.377l2.583 3.444 0.403 0.536 3.358 4.475H602.474L599.734 614.086v0Z'
-								fill='currentColor'
-							/>
-						</svg>
-					</Link>
-					<Link href='https://github.com/fdarian' external>
-						Github
-					</Link>
-				</div>
-			</section>
-
-			<HomeTabs>
-				<Tabs.List className='flex items-center gap-3'>
-					<Tab
-						title='Projects'
-						value={HomeTab.Projects}
-						number={
-							<Suspense fallback={null}>
-								<ActivityCount />
-							</Suspense>
-						}
-					/>
-					<Tab
-						title='Experience'
-						value={HomeTab.Experience}
-						number={
-							<Suspense fallback={null}>
-								<ExperienceYears />
-							</Suspense>
-						}
-					/>
-					<Tab title='Talks' value={HomeTab.Talks} number='2' />
-				</Tabs.List>
-				<div className='h-[0.5px] w-full bg-border' />
-
-				<Tabs.Panel value={HomeTab.Projects} className='space-y-6'>
-					<Suspense
-						fallback={
-							<p className='text-sm text-muted-foreground'>Loading activity…</p>
-						}
-					>
-						<ProjectsSection />
-					</Suspense>
-				</Tabs.Panel>
-
-				<Tabs.Panel value={HomeTab.Talks} className='space-y-4'>
-					<Talks
-						place='Berlin'
-						year='2022'
-						event='AsiaBerlin'
-						title='Building the future with Music & Healthcare - the Indonesia way'
-						link='https://www.youtube.com/watch?t=19891&v=B4GdwBBQUQs&feature=youtu.be'
-					/>
-					<Talks
-						place='Virtual'
-						year='2021'
-						event='Beyond B'
-						title='Smart Contract Programming with Solidity'
-						link='https://www.kaskus.co.id/thread/610ba83e5263da119c5945c3/gagal-paham-dengan-crypto-join-webinar-beyond-b--how-crypto-works-under-the-hood/'
-					/>
-				</Tabs.Panel>
-
-				<Tabs.Panel value={HomeTab.Experience} className='space-y-4'>
-					<Experience
-						year='2023 - Present'
-						place='Risedle'
-						title='On the side, I participated in building market and sentiment intelligence systems'
-					/>
-					<Experience
-						year='2024 - 2026'
-						place='AturAI'
-						title='Born from personal frustration, I initiated a legal knowledge base startup'
-					/>
-					<Experience
-						place='Netra'
-						year='2022 - 2025'
-						title='Drawn into the startup world early, I was the founding engineer building a blockchain-based royalty distribution system along with several other innovations for the music industry'
-					/>
-					<Experience
-						place='GDP Labs'
-						year='2021 - 2022'
-						title='My first contribution to the tech industry as a blockchain engineer and researcher'
-					/>
-					<Experience
-						place='Binus University'
-						year='2019 - 2021'
-						title='While pursuing my degree, I started my career teaching as a lab assistant'
-					/>
-				</Tabs.Panel>
-			</HomeTabs>
+			<HeroSection />
+			<LetsConnectSection />
+			<TabsSection />
 		</>
+	)
+}
+
+function HeroSection() {
+	return (
+		<section className='space-y-4 text-lg'>
+			<p>
+				I'm an engineer, I <Link href='/software'>build things</Link> when I see
+				something that could be better.
+				<br />I think a lot about abstraction, philosophy, and{' '}
+				<Link href='https://music.apple.com/profile/fdarian' external>
+					music
+				</Link>
+				.
+			</p>
+
+			<p>
+				Currently I work on agents at Risedle. I also advise{' '}
+				<Link href='https://atur.ai' external>
+					atur.ai
+				</Link>{' '}
+				and{' '}
+				<Link href='https://artistlive.id' external>
+					artistlive.id
+				</Link>
+				, both of which I started as technical founder.
+			</p>
+		</section>
+	)
+}
+
+function LetsConnectSection() {
+	return (
+		<section className='flex items-center gap-5 mt-10'>
+			<p className='text-sm text-muted-foreground font-medium'>Let's connect</p>
+			<div className='h-px w-16 shrink-0 bg-border' />
+			<div className='flex gap-6 text-sm'>
+				<Link href='mailto:farrel@fdarian.com' external>
+					Mail
+				</Link>
+				<Link href='https://www.linkedin.com/in/farreldarian/' external>
+					LinkedIn
+				</Link>
+				<Link href='https://twitter.com/farreldarian' external>
+					<svg
+						viewBox='593.869 607.502 11.746 12.01'
+						width='12'
+						height='12'
+						xmlns='http://www.w3.org/2000/svg'
+						className='shrink-0'
+						aria-label='X'
+					>
+						<path
+							d='M600.963 612.755L604.748 608.655h-0.896L600.564 612.216 597.939 608.655H594.91l3.971 5.383L594.91 618.338h0.897l3.471-3.76 2.774 3.76H605.08L600.963 612.755h0ZM599.734 614.086l-0.403-0.537-3.2-4.266h1.377l2.583 3.444 0.403 0.536 3.358 4.475H602.474L599.734 614.086v0Z'
+							fill='currentColor'
+						/>
+					</svg>
+				</Link>
+				<Link href='https://github.com/fdarian' external>
+					Github
+				</Link>
+			</div>
+		</section>
+	)
+}
+
+function TabsSection() {
+	return (
+		<HomeTabs>
+			<Tabs.List className='flex items-center gap-3'>
+				<Tab
+					title='Projects'
+					value={HomeTab.Projects}
+					number={
+						<Suspense fallback={null}>
+							<ActivityCount />
+						</Suspense>
+					}
+				/>
+				<Tab
+					title='Experience'
+					value={HomeTab.Experience}
+					number={
+						<Suspense fallback={null}>
+							<ExperienceYears />
+						</Suspense>
+					}
+				/>
+				<Tab title='Talks' value={HomeTab.Talks} number='2' />
+			</Tabs.List>
+
+			<div className='h-[0.5px] w-full bg-border' />
+
+			<ProjectsTab />
+			<ExperienceTab />
+			<TalksTab />
+		</HomeTabs>
+	)
+}
+
+function ProjectsTab() {
+	return (
+		<Tabs.Panel value={HomeTab.Projects} className='space-y-6'>
+			<Suspense
+				fallback={
+					<p className='text-sm text-muted-foreground'>Loading activity…</p>
+				}
+			>
+				<ProjectsSection />
+			</Suspense>
+		</Tabs.Panel>
+	)
+}
+
+function ExperienceTab() {
+	return (
+		<Tabs.Panel value={HomeTab.Experience} className='space-y-4'>
+			<Experience
+				year='2023 - Present'
+				place='Risedle'
+				title='On the side, I participated in building market and sentiment intelligence systems'
+			/>
+			<Experience
+				year='2024 - 2026'
+				place='AturAI'
+				title='Born from personal frustration, I initiated a legal knowledge base startup'
+			/>
+			<Experience
+				place='Netra'
+				year='2022 - 2025'
+				title='Drawn into the startup world early, I was the founding engineer building a blockchain-based royalty distribution system along with several other innovations for the music industry'
+			/>
+			<Experience
+				place='GDP Labs'
+				year='2021 - 2022'
+				title='My first contribution to the tech industry as a blockchain engineer and researcher'
+			/>
+			<Experience
+				place='Binus University'
+				year='2019 - 2021'
+				title='While pursuing my degree, I started my career teaching as a lab assistant'
+			/>
+		</Tabs.Panel>
+	)
+}
+
+function TalksTab() {
+	return (
+		<Tabs.Panel value={HomeTab.Talks} className='space-y-4'>
+			<Talks
+				place='Berlin'
+				year='2022'
+				event='AsiaBerlin'
+				title='Building the future with Music & Healthcare - the Indonesia way'
+				link='https://www.youtube.com/watch?t=19891&v=B4GdwBBQUQs&feature=youtu.be'
+			/>
+			<Talks
+				place='Virtual'
+				year='2021'
+				event='Beyond B'
+				title='Smart Contract Programming with Solidity'
+				link='https://www.kaskus.co.id/thread/610ba83e5263da119c5945c3/gagal-paham-dengan-crypto-join-webinar-beyond-b--how-crypto-works-under-the-hood/'
+			/>
+		</Tabs.Panel>
 	)
 }
 
