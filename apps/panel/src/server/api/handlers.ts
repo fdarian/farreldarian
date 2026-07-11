@@ -107,6 +107,7 @@ export const FeedApiLive = HttpApiBuilder.group(PanelApi, 'feed', (handlers) =>
 										name: repo.name,
 										description: repo.description ?? '',
 										href: `https://github.com/${repo.owner}/${repo.name}`,
+										pushedAt: repo.pushedAt?.toISOString(),
 									})
 							),
 						})

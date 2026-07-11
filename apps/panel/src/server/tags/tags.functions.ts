@@ -62,3 +62,18 @@ export const reorderTagProjects = createServerFn({ method: 'POST' })
 			yield* tags.reorderProjects(data.name, data.repoIds)
 		}).pipe(RuntimeServer.runPromise)
 	)
+
+/** Adds/removes a single repo from a tag's curated pinned-projects set. */
+export const setTagProjectPinned = createServerFn({ method: 'POST' })
+	.middleware([authMiddleware])
+	.validator(
+		S.toStandardSchemaV1(
+			S.Struct({ name: S.String, repoId: S.Number, pinned: S.Boolean })
+		)
+	)
+	.handler(({ data }) =>
+		Effect.gen(function* () {
+			const tags = yield* Tags
+			yield* tags.setProjectPinned(data.name, data.repoId, data.pinned)
+		}).pipe(RuntimeServer.runPromise)
+	)

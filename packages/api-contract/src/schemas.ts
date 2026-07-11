@@ -49,6 +49,8 @@ export class HighlightProject extends Schema.Class<HighlightProject>(
 	name: Schema.String,
 	description: Schema.String,
 	href: Schema.String,
+	// Only set once the repo's been (re-)synced from GitHub — see `Project.pushedAt`.
+	pushedAt: Schema.optional(Schema.String),
 }) {}
 
 /** A pinned tag, rendered as a Highlight tab on the web. */

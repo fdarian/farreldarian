@@ -8,6 +8,7 @@ type RepoSummary = {
 	id: number
 	owner: string
 	name: string
+	description: string | null
 	isPersonalProject: boolean
 }
 
@@ -16,7 +17,11 @@ export type TagListEntry = {
 	description: string | null
 	isPinned: boolean
 	pinnedOrder: number
+	// The curated, ordered subset of `repos` below that's actually pinned —
+	// an explicit opt-in set, not "every repo carrying the tag".
 	projectOrder: number[]
+	// Every repo carrying the tag (personal or not), alphabetical by
+	// owner/name — the candidate pool the route picks `projectOrder` from.
 	repos: RepoSummary[]
 }
 
@@ -27,6 +32,7 @@ export type HighlightTagRepo = {
 	owner: string
 	name: string
 	description: string | null
+	pushedAt: Date | null
 }
 
 export type HighlightTag = {
@@ -35,18 +41,15 @@ export type HighlightTag = {
 	repos: HighlightTagRepo[]
 }
 
-/** Orders `items` by `projectOrder` (ids in that order first), stale ids ignored, then appends any item absent from `projectOrder`, stable by the incoming order. */
-const sortByProjectOrder = <T extends { id: number }>(
+/** Picks `items` by id in exactly `order`'s sequence — items whose id isn't in `order` are dropped, stale ids (no longer a match) are simply skipped. */
+const pickByOrder = <T extends { id: number }>(
 	items: ReadonlyArray<T>,
-	projectOrder: ReadonlyArray<number>
+	order: ReadonlyArray<number>
 ): T[] => {
 	const byId = new Map(items.map((item) => [item.id, item]))
-	const ordered = projectOrder
+	return order
 		.map((id) => byId.get(id))
 		.filter((item): item is T => item != null)
-	const orderedIds = new Set(ordered.map((item) => item.id))
-	const rest = items.filter((item) => !orderedIds.has(item.id))
-	return [...ordered, ...rest]
 }
 
 const assembleTagEntry = (
@@ -59,7 +62,7 @@ const assembleTagEntry = (
 	isPinned: tagRow?.isPinned ?? false,
 	pinnedOrder: tagRow?.pinnedOrder ?? 0,
 	projectOrder: tagRow?.projectOrder ?? [],
-	repos: sortByProjectOrder(repoList, tagRow?.projectOrder ?? []),
+	repos: [...repoList],
 })
 
 const compareTagEntries = (a: TagListEntry, b: TagListEntry) => {
@@ -81,6 +84,7 @@ const buildTagList = (
 				id: repo.id,
 				owner: repo.owner,
 				name: repo.name,
+				description: repo.description,
 				isPersonalProject: repo.isPersonalProject,
 			})
 			reposByTag.set(tagName, existing)
@@ -106,6 +110,7 @@ export class Tags extends Context.Service<Tags>()('server/tags', {
 								id: repos.id,
 								owner: repos.owner,
 								name: repos.name,
+								description: repos.description,
 								isPersonalProject: repos.isPersonalProject,
 								tags: repos.tags,
 							})
@@ -118,7 +123,7 @@ export class Tags extends Context.Service<Tags>()('server/tags', {
 					Effect.map(([repoRows, tagRows]) => buildTagList(repoRows, tagRows))
 				)
 
-		/** Pinned tags only, tab-ordered by `pinnedOrder`, each with its repos (any repo carrying the tag) project-ordered — backs the web `/highlights` endpoint. */
+		/** Pinned tags only, tab-ordered by `pinnedOrder`, each with only its curated `projectOrder` repos, in that order — backs the web `/highlights` endpoint. */
 		const listPinnedWithProjects = () =>
 			db
 				.use((client) =>
@@ -138,7 +143,7 @@ export class Tags extends Context.Service<Tags>()('server/tags', {
 								owner: repos.owner,
 								name: repos.name,
 								description: repos.description,
-								tags: repos.tags,
+								pushedAt: repos.pushedAt,
 							})
 							.from(repos)
 							.orderBy(repos.owner, repos.name),
@@ -146,22 +151,11 @@ export class Tags extends Context.Service<Tags>()('server/tags', {
 				)
 				.pipe(
 					Effect.map(([pinnedTagRows, repoRows]): HighlightTag[] =>
-						pinnedTagRows.map((tagRow) => {
-							const carriers = repoRows.filter((repo) =>
-								repo.tags.includes(tagRow.name)
-							)
-							const ordered = sortByProjectOrder(carriers, tagRow.projectOrder)
-							return {
-								name: tagRow.name,
-								description: tagRow.description,
-								repos: ordered.map((repo) => ({
-									id: repo.id,
-									owner: repo.owner,
-									name: repo.name,
-									description: repo.description,
-								})),
-							}
-						})
+						pinnedTagRows.map((tagRow) => ({
+							name: tagRow.name,
+							description: tagRow.description,
+							repos: pickByOrder(repoRows, tagRow.projectOrder),
+						}))
 					)
 				)
 
@@ -250,6 +244,35 @@ export class Tags extends Context.Service<Tags>()('server/tags', {
 			)
 		}
 
+		/** Adds/removes a single repo from the curated `projectOrder` set — append on add, drop on remove. Leaves the rest of the order untouched. */
+		const setProjectPinned = (
+			name: string,
+			repoId: number,
+			pinned: boolean
+		) => {
+			const now = new Date()
+			return db.use(async (client) => {
+				const existing = await client
+					.select({ projectOrder: tags.projectOrder })
+					.from(tags)
+					.where(eq(tags.name, name))
+				const currentOrder = existing[0]?.projectOrder ?? []
+				const alreadyPinned = currentOrder.includes(repoId)
+				const projectOrder = pinned
+					? alreadyPinned
+						? currentOrder
+						: [...currentOrder, repoId]
+					: currentOrder.filter((id) => id !== repoId)
+				return client
+					.insert(tags)
+					.values({ name, projectOrder, updatedAt: now })
+					.onConflictDoUpdate({
+						target: tags.name,
+						set: { projectOrder, updatedAt: now },
+					})
+			})
+		}
+
 		return {
 			list,
 			listPinnedWithProjects,
@@ -257,6 +280,7 @@ export class Tags extends Context.Service<Tags>()('server/tags', {
 			setPinned,
 			reorderPinned,
 			reorderProjects,
+			setProjectPinned,
 		}
 	}),
 }) {
