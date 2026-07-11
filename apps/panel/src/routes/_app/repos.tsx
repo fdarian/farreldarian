@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { SearchIcon } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { startTransition, useMemo, useOptimistic, useState } from 'react'
 import { Button } from '#/components/ui/button.tsx'
 import {
 	Combobox,
@@ -120,6 +120,7 @@ function RepoRow(props: {
 	onSaved: () => void
 }) {
 	const { repo } = props
+	const [optimisticTags, setOptimisticTags] = useOptimistic(repo.tags)
 
 	return (
 		<div className='flex flex-col gap-3 p-4'>
@@ -152,12 +153,21 @@ function RepoRow(props: {
 			{repo.isPersonalProject && (
 				<div className='flex flex-wrap items-center gap-2'>
 					<TagsCombobox
-						onChange={async (tags) => {
-							await setRepoTags({ data: { id: repo.id, tags } })
-							props.onSaved()
+						onChange={(tags) => {
+							startTransition(async () => {
+								setOptimisticTags(tags)
+								try {
+									await setRepoTags({ data: { id: repo.id, tags } })
+									props.onSaved()
+								} catch (error) {
+									// Not committing new loader data leaves optimisticTags to
+									// revert to repo.tags once this transition settles.
+									console.error('Failed to save repo tags', error)
+								}
+							})
 						}}
 						suggestions={props.tagSuggestions}
-						tags={repo.tags}
+						tags={optimisticTags}
 					/>
 					<select
 						className='h-8 rounded-md border bg-transparent px-2 text-sm'
@@ -196,10 +206,17 @@ function TagsCombobox(props: {
 			(tag) => tag.toLowerCase() === trimmedQuery.toLowerCase()
 		) &&
 		!props.tags.some((tag) => tag.toLowerCase() === trimmedQuery.toLowerCase())
+	// Appending the "Add …" entry into `items` (rather than rendering it as a
+	// sibling after ComboboxList) makes it a real Combobox.Item registered with
+	// Base UI's Composite list, so it gets arrow-key highlighting, hover, and
+	// Enter-to-select for free.
+	const items = isNewTag
+		? [...props.suggestions, trimmedQuery]
+		: props.suggestions
 
 	return (
 		<Combobox
-			items={props.suggestions}
+			items={items}
 			multiple
 			onInputValueChange={setQuery}
 			onValueChange={props.onChange}
@@ -226,13 +243,10 @@ function TagsCombobox(props: {
 				<ComboboxList>
 					{(tag: string) => (
 						<ComboboxItem key={tag} value={tag}>
-							{tag}
+							{isNewTag && tag === trimmedQuery ? `Add "${tag}"` : tag}
 						</ComboboxItem>
 					)}
 				</ComboboxList>
-				{isNewTag && (
-					<ComboboxItem value={trimmedQuery}>Add "{trimmedQuery}"</ComboboxItem>
-				)}
 			</ComboboxPopup>
 		</Combobox>
 	)

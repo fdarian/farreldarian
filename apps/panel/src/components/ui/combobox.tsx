@@ -5,6 +5,26 @@ import { Input } from '#/components/ui/input.tsx'
 import { ScrollArea } from '#/components/ui/scroll-area.tsx'
 import { cn } from '#/lib/utils.ts'
 
+/**
+ * Emacs-style Ctrl-N/Ctrl-P navigation. Base UI drives arrow-key highlighting
+ * through its own keydown handling on the input, so the robust way to hook
+ * into it is to re-dispatch a native ArrowDown/ArrowUp keydown rather than
+ * reimplement highlight-moving logic here.
+ */
+function handleComboboxEmacsNavigation(
+	event: React.KeyboardEvent<HTMLInputElement>
+): void {
+	if (!event.ctrlKey || (event.key !== 'n' && event.key !== 'p')) return
+	event.preventDefault()
+	event.currentTarget.dispatchEvent(
+		new KeyboardEvent('keydown', {
+			key: event.key === 'n' ? 'ArrowDown' : 'ArrowUp',
+			bubbles: true,
+			cancelable: true,
+		})
+	)
+}
+
 export const ComboboxContext: React.Context<{
 	chipsRef: React.RefObject<Element | null> | null
 	multiple: boolean
@@ -30,6 +50,7 @@ export function Combobox<Value, Multiple extends boolean | undefined = false>(
 export function ComboboxChipsInput({
 	className,
 	size,
+	onKeyDown,
 	...props
 }: Omit<ComboboxPrimitive.Input.Props, 'size'> & {
 	size?: 'sm' | 'default' | 'lg' | number
@@ -46,6 +67,10 @@ export function ComboboxChipsInput({
 			)}
 			data-size={typeof sizeValue === 'string' ? sizeValue : undefined}
 			data-slot='combobox-chips-input'
+			onKeyDown={(event) => {
+				handleComboboxEmacsNavigation(event)
+				onKeyDown?.(event)
+			}}
 			size={typeof sizeValue === 'number' ? sizeValue : undefined}
 			{...props}
 		/>
@@ -60,6 +85,7 @@ export function ComboboxInput({
 	size,
 	triggerProps,
 	clearProps,
+	onKeyDown,
 	...props
 }: Omit<ComboboxPrimitive.Input.Props, 'size'> & {
 	showTrigger?: boolean
@@ -96,6 +122,10 @@ export function ComboboxInput({
 					className
 				)}
 				data-slot='combobox-input'
+				onKeyDown={(event) => {
+					handleComboboxEmacsNavigation(event)
+					onKeyDown?.(event)
+				}}
 				render={<Input className='has-disabled:opacity-100' />}
 				{...props}
 			/>
