@@ -13,6 +13,7 @@ import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AuthAuthViewRouteImport } from './routes/auth/$authView'
 import { Route as AppReposRouteImport } from './routes/_app/repos'
+import { Route as AppContributionsRouteImport } from './routes/_app/contributions'
 import { Route as AppApiKeysRouteImport } from './routes/_app/api-keys'
 import { Route as ApiV1SplatRouteImport } from './routes/api/v1/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -36,6 +37,11 @@ const AppReposRoute = AppReposRouteImport.update({
   path: '/repos',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppContributionsRoute = AppContributionsRouteImport.update({
+  id: '/contributions',
+  path: '/contributions',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppApiKeysRoute = AppApiKeysRouteImport.update({
   id: '/api-keys',
   path: '/api-keys',
@@ -55,6 +61,7 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/api-keys': typeof AppApiKeysRoute
+  '/contributions': typeof AppContributionsRoute
   '/repos': typeof AppReposRoute
   '/auth/$authView': typeof AuthAuthViewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/api-keys': typeof AppApiKeysRoute
+  '/contributions': typeof AppContributionsRoute
   '/repos': typeof AppReposRoute
   '/auth/$authView': typeof AuthAuthViewRoute
   '/': typeof AppIndexRoute
@@ -72,6 +80,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteRouteWithChildren
   '/_app/api-keys': typeof AppApiKeysRoute
+  '/_app/contributions': typeof AppContributionsRoute
   '/_app/repos': typeof AppReposRoute
   '/auth/$authView': typeof AuthAuthViewRoute
   '/_app/': typeof AppIndexRoute
@@ -83,6 +92,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/api-keys'
+    | '/contributions'
     | '/repos'
     | '/auth/$authView'
     | '/api/auth/$'
@@ -90,6 +100,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/api-keys'
+    | '/contributions'
     | '/repos'
     | '/auth/$authView'
     | '/'
@@ -99,6 +110,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_app'
     | '/_app/api-keys'
+    | '/_app/contributions'
     | '/_app/repos'
     | '/auth/$authView'
     | '/_app/'
@@ -143,6 +155,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppReposRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/contributions': {
+      id: '/_app/contributions'
+      path: '/contributions'
+      fullPath: '/contributions'
+      preLoaderRoute: typeof AppContributionsRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/api-keys': {
       id: '/_app/api-keys'
       path: '/api-keys'
@@ -169,12 +188,14 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteRouteChildren {
   AppApiKeysRoute: typeof AppApiKeysRoute
+  AppContributionsRoute: typeof AppContributionsRoute
   AppReposRoute: typeof AppReposRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppApiKeysRoute: AppApiKeysRoute,
+  AppContributionsRoute: AppContributionsRoute,
   AppReposRoute: AppReposRoute,
   AppIndexRoute: AppIndexRoute,
 }
