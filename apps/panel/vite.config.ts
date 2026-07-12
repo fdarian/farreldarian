@@ -3,14 +3,14 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import { Config, Effect } from 'effect'
 import { nitro } from 'nitro/vite'
-import tsConfigPaths from 'vite-tsconfig-paths'
+import { defineConfig } from 'vite'
 
 const config = Effect.gen(function* () {
 	const port = yield* Config.number('PORT').pipe(Config.withDefault(3000))
-	return {
+	return defineConfig({
 		server: { port },
+		resolve: { tsconfigPaths: true },
 		plugins: [
-			tsConfigPaths(),
 			tanstackStart(),
 			// `devServer.runner: 'bun-process'` is required — nitro's dev server
 			// defaults to a Node worker for *any* preset, so `drizzle-orm/bun-sqlite`
@@ -26,7 +26,7 @@ const config = Effect.gen(function* () {
 			tailwindcss(),
 			viteReact(),
 		],
-	}
+	})
 })
 
 export default Effect.runSync(config)
