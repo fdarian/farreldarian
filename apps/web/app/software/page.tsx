@@ -1,5 +1,4 @@
 import { Tabs } from '@base-ui/react/tabs'
-import { CaretDoubleRightIcon } from '@phosphor-icons/react/dist/ssr/CaretDoubleRight'
 import { cache, Suspense } from 'react'
 import { getActivity, listProjects } from '@/server/panel/fetches'
 import { ActivityRow } from '../components/activity-row'
