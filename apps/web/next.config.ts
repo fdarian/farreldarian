@@ -1,5 +1,6 @@
-/** @type {import('next').NextConfig} */
-const config = {
+import type { NextConfig } from 'next/dist/types'
+
+const config: NextConfig = {
 	reactStrictMode: true,
 	cacheComponents: true,
 	experimental: {
