@@ -11,6 +11,7 @@ import { Database } from './db/service.ts'
 import { Github } from './github/service.ts'
 import { Repos } from './repos/service.ts'
 import { Revalidation } from './revalidation/service.ts'
+import { Sync } from './sync/service.ts'
 import { Tags } from './tags/service.ts'
 
 const layersCore = Auth.layer
@@ -19,11 +20,26 @@ const layersInfra = Layer.mergeAll(
 	AuthGoogle.layer,
 	Github.layer,
 	Revalidation.layer,
-	Repos.layer.pipe(Layer.provide(Database.layer)),
+	Repos.layer.pipe(Layer.provide(Layer.mergeAll(Database.layer, Github.layer))),
 	Tags.layer.pipe(Layer.provide(Database.layer)),
 	Contributions.layer.pipe(
 		Layer.provide(
 			Layer.mergeAll(Database.layer, Github.layer, Revalidation.layer)
+		)
+	),
+	Sync.layer.pipe(
+		Layer.provide(
+			Layer.mergeAll(
+				Database.layer,
+				Repos.layer.pipe(
+					Layer.provide(Layer.mergeAll(Database.layer, Github.layer))
+				),
+				Contributions.layer.pipe(
+					Layer.provide(
+						Layer.mergeAll(Database.layer, Github.layer, Revalidation.layer)
+					)
+				)
+			)
 		)
 	)
 )

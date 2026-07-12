@@ -5,19 +5,6 @@ import { Repos } from '#/server/repos/service.ts'
 import { protectedServerFn } from '#/server/server-fn.ts'
 import { Contributions } from './service.ts'
 
-/**
- * On-demand catch-up sync — cheap (usually a single request, since it only
- * fetches PRs updated since the last sync). The full history backfill is a
- * separate one-off script (`contributions:backfill`), not exposed here.
- */
-export const syncContributions = protectedServerFn({ method: 'POST' }).effect(
-	() =>
-		Effect.gen(function* () {
-			const contributions = yield* Contributions
-			yield* contributions.incrementalSync()
-		})
-)
-
 /** Every org behind a detected open-source PR, flagged with its current exclude state. */
 export const listOpenSourceOrgs = protectedServerFn({ method: 'GET' }).effect(
 	() =>

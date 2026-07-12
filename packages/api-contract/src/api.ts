@@ -2,7 +2,6 @@ import { HttpApi, HttpApiEndpoint, HttpApiGroup } from 'effect/unstable/httpapi'
 import { ApiKeyAuth } from './auth.ts'
 import {
 	ActivityResponse,
-	ContributionsSyncResponse,
 	HighlightsResponse,
 	ProjectsQuery,
 	ProjectsResponse,
@@ -25,16 +24,6 @@ export class FeedGroup extends HttpApiGroup.make('feed')
 	)
 	.middleware(ApiKeyAuth) {}
 
-/** Sync trigger for the `contributions` sqlite mirror — see `ContributionsSyncResponse`. */
-export class ContributionsGroup extends HttpApiGroup.make('contributions')
-	.add(
-		HttpApiEndpoint.post('sync', '/contributions/sync', {
-			success: ContributionsSyncResponse,
-		})
-	)
-	.middleware(ApiKeyAuth) {}
-
 export class PanelApi extends HttpApi.make('panel')
 	.add(FeedGroup)
-	.add(ContributionsGroup)
 	.prefix('/api/v1') {}

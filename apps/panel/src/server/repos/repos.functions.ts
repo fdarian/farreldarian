@@ -1,20 +1,24 @@
 import { Effect } from 'effect'
 import * as S from 'effect/Schema'
-import { Github } from '#/server/github/service.ts'
 import { protectedServerFn } from '../server-fn.ts'
 import { Repos } from './service.ts'
 
-/** GitHub repos I own, merged with the local toggle/tags/status state. */
+/** Locally stored GitHub repos, including records soft-deleted by sync. */
 export const listRepos = protectedServerFn({ method: 'GET' }).effect(() =>
 	Effect.gen(function* () {
-		const github = yield* Github
 		const repos = yield* Repos
-
-		const githubRepos = yield* github.listOwnRepos()
-		yield* repos.upsertFromGithub(githubRepos)
 		return yield* repos.list()
 	})
 )
+
+export const hardDeleteRepo = protectedServerFn({ method: 'POST' })
+	.validator(S.toStandardSchemaV1(S.Struct({ id: S.Number })))
+	.effect(({ data }) =>
+		Effect.gen(function* () {
+			const repos = yield* Repos
+			yield* repos.hardDelete(data.id)
+		})
+	)
 
 export const setRepoPersonal = protectedServerFn({ method: 'POST' })
 	.validator(

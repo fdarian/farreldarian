@@ -11,7 +11,6 @@
 		"check:type": "tsc --noEmit",
 		"check:lint": "biome check .",
 		"better-auth:generate": "bun run scripts/better-auth/generate.ts",
-		"contributions:backfill": "bun run scripts/contributions/backfill.ts",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio"

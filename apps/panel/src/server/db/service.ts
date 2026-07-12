@@ -4,9 +4,15 @@ import { migrate } from 'drizzle-orm/bun-sqlite/migrator'
 import { Config, Context, Effect, Layer, Schema } from 'effect'
 import * as contributionsSchema from '../contributions/drizzle.ts'
 import * as reposSchema from '../repos/drizzle.ts'
+import * as syncSchema from '../sync/drizzle.ts'
 import * as authSchema from './models/auth.ts'
 
-const schema = { ...authSchema, ...reposSchema, ...contributionsSchema }
+const schema = {
+	...authSchema,
+	...reposSchema,
+	...contributionsSchema,
+	...syncSchema,
+}
 
 export const databaseUrl = Config.string('DATABASE_URL').pipe(
 	Config.withDefault('./data/panel.sqlite')

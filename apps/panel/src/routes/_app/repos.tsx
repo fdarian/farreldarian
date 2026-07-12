@@ -1,5 +1,5 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
-import { SearchIcon } from 'lucide-react'
+import { LoaderCircleIcon, SearchIcon } from 'lucide-react'
 import { startTransition, useMemo, useOptimistic, useState } from 'react'
 import { Button } from '#/components/ui/button.tsx'
 import {
@@ -15,14 +15,19 @@ import {
 } from '#/components/ui/combobox.tsx'
 import { Input } from '#/components/ui/input.tsx'
 import {
+	hardDeleteRepo,
 	listRepos,
 	setRepoPersonal,
 	setRepoStatus,
 	setRepoTags,
 } from '#/server/repos/repos.functions.ts'
+import { getSyncState, runSync } from '#/server/sync/sync.functions.ts'
 
 export const Route = createFileRoute('/_app/repos')({
-	loader: () => listRepos(),
+	loader: async () => ({
+		repos: await listRepos(),
+		syncState: await getSyncState(),
+	}),
 	component: ReposPage,
 })
 
@@ -53,11 +58,22 @@ function matchesPersonalFilter(repo: Repo, filter: PersonalFilter) {
 }
 
 function ReposPage() {
-	const repos = Route.useLoaderData()
+	const loaderData = Route.useLoaderData()
+	const repos = loaderData.repos
 	const router = useRouter()
 	const refresh = () => router.invalidate()
 	const [search, setSearch] = useState('')
 	const [personalFilter, setPersonalFilter] = useState<PersonalFilter>('all')
+	const [isSyncing, setIsSyncing] = useState(false)
+	const lastSyncedAt = loaderData.syncState.reduce<Date | null>(
+		(latest, state) => {
+			if (state.lastSyncedAt === null) return latest
+			if (latest === null || state.lastSyncedAt > latest)
+				return state.lastSyncedAt
+			return latest
+		},
+		null
+	)
 
 	const visibleRepos = repos.filter(
 		(repo) =>
@@ -70,7 +86,32 @@ function ReposPage() {
 
 	return (
 		<div className='mx-auto max-w-3xl space-y-6 p-6'>
-			<h1 className='font-semibold text-xl'>Repos</h1>
+			<div className='flex flex-wrap items-center justify-between gap-3'>
+				<h1 className='font-semibold text-xl'>Repos</h1>
+				<div className='flex items-center gap-2'>
+					{lastSyncedAt !== null && (
+						<span className='text-muted-foreground text-sm'>
+							Last synced {formatRelativeTime(lastSyncedAt)} ago
+						</span>
+					)}
+					<Button
+						disabled={isSyncing}
+						onClick={async () => {
+							setIsSyncing(true)
+							try {
+								await runSync()
+								await router.invalidate()
+							} finally {
+								setIsSyncing(false)
+							}
+						}}
+						type='button'
+					>
+						{isSyncing && <LoaderCircleIcon className='animate-spin' />}
+						Sync
+					</Button>
+				</div>
+			</div>
 			<p className='text-muted-foreground text-sm'>
 				Toggle which GitHub repos count as personal projects.
 			</p>
@@ -114,12 +155,22 @@ function ReposPage() {
 	)
 }
 
+function formatRelativeTime(date: Date) {
+	const elapsedSeconds = Math.floor((Date.now() - date.getTime()) / 1000)
+	if (elapsedSeconds < 60) return 'just now'
+	const elapsedMinutes = Math.floor(elapsedSeconds / 60)
+	if (elapsedMinutes < 60) return `${elapsedMinutes}m`
+	const elapsedHours = Math.floor(elapsedMinutes / 60)
+	if (elapsedHours < 24) return `${elapsedHours}h`
+	return `${Math.floor(elapsedHours / 24)}d`
+}
+
 function RepoRow(props: {
 	repo: Repo
 	tagSuggestions: ReadonlyArray<string>
 	onSaved: () => void
 }) {
-	const { repo } = props
+	const repo = props.repo
 	const [optimisticTags, setOptimisticTags] = useOptimistic(repo.tags)
 
 	return (
@@ -129,26 +180,46 @@ function RepoRow(props: {
 					<p className='font-medium text-sm'>
 						{repo.owner}/{repo.name}
 					</p>
+					{repo.deletedAt !== null && (
+						<p className='text-muted-foreground text-sm'>
+							deleted · hidden from web
+						</p>
+					)}
 					{repo.description && (
 						<p className='text-muted-foreground text-sm'>{repo.description}</p>
 					)}
 				</div>
-				<label className='flex items-center gap-2 text-sm'>
-					<input
-						checked={repo.isPersonalProject}
-						onChange={async () => {
-							await setRepoPersonal({
-								data: {
-									id: repo.id,
-									isPersonalProject: !repo.isPersonalProject,
-								},
-							})
-							props.onSaved()
-						}}
-						type='checkbox'
-					/>
-					Personal project
-				</label>
+				<div className='flex items-center gap-2'>
+					<label className='flex items-center gap-2 text-sm'>
+						<input
+							checked={repo.isPersonalProject}
+							onChange={async () => {
+								await setRepoPersonal({
+									data: {
+										id: repo.id,
+										isPersonalProject: !repo.isPersonalProject,
+									},
+								})
+								props.onSaved()
+							}}
+							type='checkbox'
+						/>
+						Personal project
+					</label>
+					{repo.deletedAt !== null && (
+						<Button
+							onClick={async () => {
+								await hardDeleteRepo({ data: { id: repo.id } })
+								props.onSaved()
+							}}
+							size='sm'
+							type='button'
+							variant='outline'
+						>
+							Remove record
+						</Button>
+					)}
+				</div>
 			</div>
 			{repo.isPersonalProject && (
 				<div className='flex flex-wrap items-center gap-2'>

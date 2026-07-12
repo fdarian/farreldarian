@@ -61,17 +61,3 @@ export class Highlight extends Schema.Class<Highlight>('Highlight')({
 }) {}
 
 export const HighlightsResponse = Schema.Array(Highlight)
-
-/**
- * `mode: 'incremental'` — the common daily-cron path, ran synchronously;
- * `synced` is the number of PRs upserted. `mode: 'backfill-started'` — the
- * table was empty, so the (slow, rate-limited) full history backfill was
- * kicked off in the background instead of blocking the request; `synced` is
- * always 0 in that case.
- */
-export class ContributionsSyncResponse extends Schema.Class<ContributionsSyncResponse>(
-	'ContributionsSyncResponse'
-)({
-	mode: Schema.Literals(['incremental', 'backfill-started']),
-	synced: Schema.Number,
-}) {}

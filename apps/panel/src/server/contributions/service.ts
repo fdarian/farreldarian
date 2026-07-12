@@ -271,17 +271,7 @@ export class Contributions extends Context.Service<Contributions>()(
 			> =>
 				Effect.gen(function* () {
 					const since = yield* lastSyncedUpdatedAt()
-
-					if (Option.isNone(since)) {
-						// Nothing synced yet. Deliberately doesn't fall back to `backfill()`
-						// here — this runs unattended on every boot (see below), and a full
-						// history bisection is exactly the "hammering GitHub" this table
-						// exists to avoid. Bootstrapping is `contributions:backfill`'s job.
-						yield* Effect.logWarning(
-							'[contributions] no history synced yet — run `bun contributions:backfill`'
-						)
-						return 0
-					}
+					if (Option.isNone(since)) return 0
 
 					const query = `author:${github.username} is:pr is:merged updated:>=${since.value.toISOString()}`
 					const totalCount = yield* countIssues(query).pipe(
@@ -290,31 +280,25 @@ export class Contributions extends Context.Service<Contributions>()(
 
 					if (totalCount > SEARCH_RESULT_CAP) {
 						yield* Effect.logWarning(
-							`[contributions] ${totalCount} merged PRs updated since last sync — beyond the ${SEARCH_RESULT_CAP} cap, re-run \`contributions:backfill\` to fill the gap`
+							`[contributions] ${totalCount} merged PRs updated since last sync — beyond the ${SEARCH_RESULT_CAP} cap; run Sync again after the current window completes`
 						)
 					}
 
 					return yield* fetchAllPages(query, totalCount)
 				}).pipe(Effect.tap(() => notifyRevalidation()))
 
-			// Fire-and-forget on boot: keeps the table warm without blocking app
-			// startup or failing it when GitHub is unreachable/token is missing.
-			// `forkDetach` (not `forkChild`) so it keeps running independent of
-			// whichever request fiber happened to construct this service first.
-			yield* incrementalSync()
-				.pipe(
-					Effect.catch((error: GithubError | DbError) =>
-						Effect.logWarning('[contributions] boot sync failed').pipe(
-							Effect.annotateLogs({ error })
-						)
+			const sync = (): Effect.Effect<number, GithubError | DbError> =>
+				hasHistory().pipe(
+					Effect.flatMap((hasHistory) =>
+						hasHistory ? incrementalSync() : backfill()
 					)
 				)
-				.pipe(Effect.forkDetach)
 
 			return {
 				list,
 				backfill,
 				incrementalSync,
+				sync,
 				hasHistory,
 				listExcludedOwners,
 				listOpenSourceOrgs,

@@ -74,7 +74,9 @@ them in sync), not the v3 API most examples online show:
   better-auth CLI can introspect `Auth`'s config without a real database.
 - `src/server/repos/drizzle.ts` — the `repos` table (co-located with the domain, per
   convention — not under `db/models/`, which is reserved for generated schemas).
-  `isPersonalProject` toggle, `tags`, `status`/`year`. `drizzle.config.ts`'s `schema`
+  `isPersonalProject` toggle, `tags`, `status`/`year`, and `deletedAt`. Sync reconciles
+  the complete owned-repo list and soft-deletes missing records; deleted repos stay in
+  the panel for removal but are hidden from web projects. `drizzle.config.ts`'s `schema`
   glob picks up both `db/models/*` (generated) and `**/drizzle.ts` (hand-written).
 - `src/server/tags/` — metadata over the tag strings living in `repos.tags` (no
   separate tag entity otherwise): pin/order tags for the web "Highlights" tabs,
@@ -88,15 +90,12 @@ them in sync), not the v3 API most examples online show:
 - `src/server/contributions/` — sqlite mirror of my merged PRs (`Contributions`
   service, `drizzle.ts`'s `merged_pull_requests` table). `activity` reads this
   instead of calling GitHub live — the Search API caps at 1000 results and
-  30 req/min, too little/slow for a per-request fetch. `bun contributions:backfill`
-  (`scripts/contributions/backfill.ts`) does a one-off full-history sync, bisecting
-  the `merged:` date window to stay under the 1000 cap; `Contributions` forks a
-  cheap `updated:>=`-windowed catch-up sync on boot (no-ops with a warning until
-  the backfill has run once); `syncContributions` (`contributions.functions.ts`) is
-  the same catch-up exposed as an authed on-demand server fn; `POST
-  /api/v1/contributions/sync` (`api/contributions-handlers.ts`, api-key-authed, for a
-  cron) runs the same incremental sync synchronously, or forks the full backfill in the
-  background if the table's still empty rather than blocking the request.
+  30 req/min, too little/slow for a per-request fetch. `Contributions.sync()` backfills
+  by bisecting the `merged:` date window when the table is empty; later manual Syncs use
+  the implicit `MAX(updatedAt)` `updated:>=` cursor.
+- `src/server/sync/` — the one manual Sync path: the repos button calls `runSync`, then
+  `Sync.syncAll()` reconciles repos and syncs contributions independently. `sync_state`
+  records last-success/error status for the UI only; it is not a content cursor.
 - `src/server/revalidation/service.ts` — `Revalidation` service: POSTs to the web app's
   revalidate endpoint after a sync commits rows (see "Env"). Failure is swallowed at the
   call site (`contributions/service.ts`) — a sync must never fail because revalidation did.

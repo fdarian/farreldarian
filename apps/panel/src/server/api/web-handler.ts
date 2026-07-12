@@ -4,7 +4,6 @@ import { HttpRouter, HttpServer } from 'effect/unstable/http'
 import { HttpApiBuilder, HttpApiScalar } from 'effect/unstable/httpapi'
 import { layerMain } from '#/server/runtime.ts'
 import { ApiKeyAuthLive } from './auth-middleware.ts'
-import { ContributionsApiLive } from './contributions-handlers.ts'
 import { FeedApiLive } from './handlers.ts'
 
 // Layer composition (and `HttpRouter.toWebHandler`) is deferred to the first
@@ -15,9 +14,9 @@ import { FeedApiLive } from './handlers.ts'
 // is fully evaluated by the time it's read.
 const buildWebHandler = () => {
 	// Provided sequentially so each `Layer.provide` step resolves the previous
-	// step's leftover requirements against the new layer's output. `FeedApiLive`/
-	// `ContributionsApiLive` require `ApiKeyAuth` (their group-level middleware
-	// tag) plus `Github`/`Repos`/`Contributions` (used inside the handlers);
+	// step's leftover requirements against the new layer's output. `FeedApiLive`
+	// requires `ApiKeyAuth` (its group-level middleware tag) plus
+	// `Github`/`Repos`/`Contributions` (used inside the handlers);
 	// `ApiKeyAuthLive` supplies `ApiKeyAuth` but itself requires `Auth`;
 	// `layerMain` (the same composition backing the app's `ManagedRuntime`, see
 	// `src/server/runtime.ts`) supplies Auth/Database/Github/Repos/Contributions.
@@ -34,7 +33,6 @@ const buildWebHandler = () => {
 		openapiPath: '/api/v1/spec.json',
 	}).pipe(
 		Layer.provide(FeedApiLive),
-		Layer.provide(ContributionsApiLive),
 		Layer.provide(ApiKeyAuthLive),
 		Layer.provideMerge(layerMain),
 		Layer.provide(HttpServer.layerServices)

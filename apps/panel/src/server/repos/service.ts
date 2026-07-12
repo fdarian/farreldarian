@@ -1,7 +1,8 @@
-import { and, eq, like, or } from 'drizzle-orm'
+import { and, eq, inArray, isNull, like, notInArray, or } from 'drizzle-orm'
 import { Context, Effect, Layer } from 'effect'
 import type { GithubRepo } from '#/server/github/service.ts'
 import { Database } from '../db/service.ts'
+import { Github } from '../github/service.ts'
 import { repos } from './drizzle.ts'
 
 export type RepoStatus = 'active' | 'archived'
@@ -19,6 +20,7 @@ const toRepoValues = (item: GithubRepo) => ({
 export class Repos extends Context.Service<Repos>()('server/repos', {
 	make: Effect.gen(function* () {
 		const db = yield* Database
+		const github = yield* Github
 
 		const list = () =>
 			db.use((client) =>
@@ -46,6 +48,46 @@ export class Repos extends Context.Service<Repos>()('server/repos', {
 					})
 				)
 			)
+
+		const syncFromGithub = () =>
+			Effect.gen(function* () {
+				const githubRepos = yield* github.listOwnRepos()
+				yield* upsertFromGithub(githubRepos)
+				const githubIds = githubRepos.map((repo) => repo.githubId)
+				const now = new Date()
+
+				if (githubIds.length === 0) {
+					yield* db.use((client) =>
+						client
+							.update(repos)
+							.set({ deletedAt: now })
+							.where(isNull(repos.deletedAt))
+					)
+				} else {
+					yield* db.use((client) =>
+						Promise.all([
+							client
+								.update(repos)
+								.set({ deletedAt: now })
+								.where(
+									and(
+										isNull(repos.deletedAt),
+										notInArray(repos.githubId, githubIds)
+									)
+								),
+							client
+								.update(repos)
+								.set({ deletedAt: null })
+								.where(inArray(repos.githubId, githubIds)),
+						])
+					)
+				}
+
+				return githubRepos.length
+			})
+
+		const hardDelete = (id: number) =>
+			db.use((client) => client.delete(repos).where(eq(repos.id, id)))
 
 		const setPersonal = (id: number, isPersonalProject: boolean) =>
 			db.use((client) =>
@@ -89,7 +131,10 @@ export class Repos extends Context.Service<Repos>()('server/repos', {
 		}) =>
 			db
 				.use((client) => {
-					const conditions = [eq(repos.isPersonalProject, true)]
+					const conditions = [
+						eq(repos.isPersonalProject, true),
+						isNull(repos.deletedAt),
+					]
 					const search = options.search
 					if (search != null && search !== '') {
 						const term = `%${search}%`
@@ -117,6 +162,8 @@ export class Repos extends Context.Service<Repos>()('server/repos', {
 		return {
 			list,
 			upsertFromGithub,
+			syncFromGithub,
+			hardDelete,
 			setPersonal,
 			setTags,
 			setStatus,

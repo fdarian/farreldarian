@@ -20,6 +20,7 @@ export const repos = sqliteTable('repos', {
 	// existing rows stay null rather than backfilling a fake 0/epoch.
 	stargazersCount: integer(),
 	pushedAt: integer({ mode: 'timestamp' }),
+	deletedAt: integer({ mode: 'timestamp' }),
 	createdAt: integer({ mode: 'timestamp' })
 		.notNull()
 		.$defaultFn(() => new Date()),
