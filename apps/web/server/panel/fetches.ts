@@ -9,7 +9,7 @@ import {
 import { Effect, Schema } from 'effect'
 import { cacheLife, cacheTag } from 'next/cache'
 import { CacheLife, CacheTags } from '@/server/cache'
-import { Panel } from '@/server/panel'
+import { Panel } from '@/server/panel/client'
 import { RuntimeServer } from '@/server/runtime'
 
 export async function getActivity(): Promise<
