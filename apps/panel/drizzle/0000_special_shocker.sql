@@ -78,4 +78,49 @@ CREATE TABLE `verification` (
 	`updated_at` integer DEFAULT (cast(unixepoch('subsecond') * 1000 as integer)) NOT NULL
 );
 --> statement-breakpoint
-CREATE INDEX `verification_identifier_idx` ON `verification` (`identifier`);
+CREATE INDEX `verification_identifier_idx` ON `verification` (`identifier`);--> statement-breakpoint
+CREATE TABLE `excluded_orgs` (
+	`owner` text PRIMARY KEY NOT NULL,
+	`createdAt` integer NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE `merged_pull_requests` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`githubId` integer NOT NULL,
+	`repo` text NOT NULL,
+	`number` integer NOT NULL,
+	`title` text NOT NULL,
+	`href` text NOT NULL,
+	`mergedAt` integer NOT NULL,
+	`updatedAt` integer NOT NULL,
+	`syncedAt` integer NOT NULL
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `merged_pull_requests_githubId_unique` ON `merged_pull_requests` (`githubId`);--> statement-breakpoint
+CREATE INDEX `merged_pull_requests_merged_at_idx` ON `merged_pull_requests` (`mergedAt`);--> statement-breakpoint
+CREATE TABLE `repos` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`githubId` integer NOT NULL,
+	`owner` text NOT NULL,
+	`name` text NOT NULL,
+	`description` text,
+	`isPersonalProject` integer DEFAULT false NOT NULL,
+	`tags` text NOT NULL,
+	`status` text DEFAULT 'active' NOT NULL,
+	`year` integer,
+	`stargazersCount` integer,
+	`pushedAt` integer,
+	`createdAt` integer NOT NULL,
+	`updatedAt` integer NOT NULL
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `repos_githubId_unique` ON `repos` (`githubId`);--> statement-breakpoint
+CREATE TABLE `tags` (
+	`name` text PRIMARY KEY NOT NULL,
+	`description` text,
+	`isPinned` integer DEFAULT false NOT NULL,
+	`pinnedOrder` integer DEFAULT 0 NOT NULL,
+	`projectOrder` text NOT NULL,
+	`createdAt` integer NOT NULL,
+	`updatedAt` integer NOT NULL
+);

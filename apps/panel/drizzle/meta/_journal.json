@@ -5,43 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1783679196246,
-      "tag": "0000_young_edwin_jarvis",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1783681084101,
-      "tag": "0001_keen_riptide",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1783746865797,
-      "tag": "0002_loose_blazing_skull",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1783751672207,
-      "tag": "0003_sturdy_wildside",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1783753178110,
-      "tag": "0004_little_havok",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "6",
-      "when": 1783765393906,
-      "tag": "0005_gifted_cerebro",
+      "when": 1783843578564,
+      "tag": "0000_special_shocker",
       "breakpoints": true
     }
   ]
