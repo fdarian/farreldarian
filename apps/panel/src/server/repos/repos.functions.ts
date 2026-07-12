@@ -1,23 +1,28 @@
 import { Effect } from 'effect'
 import * as S from 'effect/Schema'
+import { runServerEffect } from '../run-server-effect.ts'
 import { protectedServerFn } from '../server-fn.ts'
 import { Repos } from './service.ts'
 
 /** Locally stored GitHub repos, including records soft-deleted by sync. */
-export const listRepos = protectedServerFn({ method: 'GET' }).effect(() =>
-	Effect.gen(function* () {
-		const repos = yield* Repos
-		return yield* repos.list()
-	})
+export const listRepos = protectedServerFn({ method: 'GET' }).handler(() =>
+	runServerEffect(
+		Effect.gen(function* () {
+			const repos = yield* Repos
+			return yield* repos.list()
+		})
+	)
 )
 
 export const hardDeleteRepo = protectedServerFn({ method: 'POST' })
 	.validator(S.toStandardSchemaV1(S.Struct({ id: S.Number })))
-	.effect(({ data }) =>
-		Effect.gen(function* () {
-			const repos = yield* Repos
-			yield* repos.hardDelete(data.id)
-		})
+	.handler(({ data }) =>
+		runServerEffect(
+			Effect.gen(function* () {
+				const repos = yield* Repos
+				yield* repos.hardDelete(data.id)
+			})
+		)
 	)
 
 export const setRepoPersonal = protectedServerFn({ method: 'POST' })
@@ -26,22 +31,26 @@ export const setRepoPersonal = protectedServerFn({ method: 'POST' })
 			S.Struct({ id: S.Number, isPersonalProject: S.Boolean })
 		)
 	)
-	.effect(({ data }) =>
-		Effect.gen(function* () {
-			const repos = yield* Repos
-			yield* repos.setPersonal(data.id, data.isPersonalProject)
-		})
+	.handler(({ data }) =>
+		runServerEffect(
+			Effect.gen(function* () {
+				const repos = yield* Repos
+				yield* repos.setPersonal(data.id, data.isPersonalProject)
+			})
+		)
 	)
 
 export const setRepoTags = protectedServerFn({ method: 'POST' })
 	.validator(
 		S.toStandardSchemaV1(S.Struct({ id: S.Number, tags: S.Array(S.String) }))
 	)
-	.effect(({ data }) =>
-		Effect.gen(function* () {
-			const repos = yield* Repos
-			yield* repos.setTags(data.id, data.tags)
-		})
+	.handler(({ data }) =>
+		runServerEffect(
+			Effect.gen(function* () {
+				const repos = yield* Repos
+				yield* repos.setTags(data.id, data.tags)
+			})
+		)
 	)
 
 export const setRepoStatus = protectedServerFn({ method: 'POST' })
@@ -54,9 +63,11 @@ export const setRepoStatus = protectedServerFn({ method: 'POST' })
 			})
 		)
 	)
-	.effect(({ data }) =>
-		Effect.gen(function* () {
-			const repos = yield* Repos
-			yield* repos.setStatus(data.id, data.status, data.year)
-		})
+	.handler(({ data }) =>
+		runServerEffect(
+			Effect.gen(function* () {
+				const repos = yield* Repos
+				yield* repos.setStatus(data.id, data.status, data.year)
+			})
+		)
 	)
