@@ -1,10 +1,8 @@
-import { createServerFn } from '@tanstack/react-start'
 import { Effect } from 'effect'
 import * as S from 'effect/Schema'
-import { authMiddleware } from '#/server/auth/session.functions.ts'
 import { Github } from '#/server/github/service.ts'
 import { Repos } from '#/server/repos/service.ts'
-import { RuntimeServer } from '#/server/runtime.ts'
+import { protectedServerFn } from '#/server/server-fn.ts'
 import { Contributions } from './service.ts'
 
 /**
@@ -12,19 +10,17 @@ import { Contributions } from './service.ts'
  * fetches PRs updated since the last sync). The full history backfill is a
  * separate one-off script (`contributions:backfill`), not exposed here.
  */
-export const syncContributions = createServerFn({ method: 'POST' })
-	.middleware([authMiddleware])
-	.handler(() =>
+export const syncContributions = protectedServerFn({ method: 'POST' }).effect(
+	() =>
 		Effect.gen(function* () {
 			const contributions = yield* Contributions
 			yield* contributions.incrementalSync()
-		}).pipe(RuntimeServer.runPromise)
-	)
+		})
+)
 
 /** Every org behind a detected open-source PR, flagged with its current exclude state. */
-export const listOpenSourceOrgs = createServerFn({ method: 'GET' })
-	.middleware([authMiddleware])
-	.handler(() =>
+export const listOpenSourceOrgs = protectedServerFn({ method: 'GET' }).effect(
+	() =>
 		Effect.gen(function* () {
 			const contributions = yield* Contributions
 			const github = yield* Github
@@ -37,15 +33,14 @@ export const listOpenSourceOrgs = createServerFn({ method: 'GET' })
 					personalKeys.map((key) => `${key.owner}/${key.name}`)
 				),
 			})
-		}).pipe(RuntimeServer.runPromise)
-	)
+		})
+)
 
-export const setOrgExcluded = createServerFn({ method: 'POST' })
-	.middleware([authMiddleware])
+export const setOrgExcluded = protectedServerFn({ method: 'POST' })
 	.validator(
 		S.toStandardSchemaV1(S.Struct({ owner: S.String, excluded: S.Boolean }))
 	)
-	.handler(({ data }) =>
+	.effect(({ data }) =>
 		Effect.gen(function* () {
 			const contributions = yield* Contributions
 			if (data.excluded) {
@@ -53,5 +48,5 @@ export const setOrgExcluded = createServerFn({ method: 'POST' })
 			} else {
 				yield* contributions.includeOrg(data.owner)
 			}
-		}).pipe(RuntimeServer.runPromise)
+		})
 	)

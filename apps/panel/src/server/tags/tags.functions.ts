@@ -1,79 +1,70 @@
-import { createServerFn } from '@tanstack/react-start'
 import { Effect } from 'effect'
 import * as S from 'effect/Schema'
-import { authMiddleware } from '#/server/auth/session.functions.ts'
-import { RuntimeServer } from '#/server/runtime.ts'
+import { protectedServerFn } from '#/server/server-fn.ts'
 import { Tags } from './service.ts'
 
 /** The assembled Highlights view: every tag carried by a repo, with its metadata + ordered repos. */
-export const listTags = createServerFn({ method: 'GET' })
-	.middleware([authMiddleware])
-	.handler(() =>
-		Effect.gen(function* () {
-			const tags = yield* Tags
-			return yield* tags.list()
-		}).pipe(RuntimeServer.runPromise)
-	)
+export const listTags = protectedServerFn({ method: 'GET' }).effect(() =>
+	Effect.gen(function* () {
+		const tags = yield* Tags
+		return yield* tags.list()
+	})
+)
 
-export const setTagDescription = createServerFn({ method: 'POST' })
-	.middleware([authMiddleware])
+export const setTagDescription = protectedServerFn({ method: 'POST' })
 	.validator(
 		S.toStandardSchemaV1(S.Struct({ name: S.String, description: S.String }))
 	)
-	.handler(({ data }) =>
+	.effect(({ data }) =>
 		Effect.gen(function* () {
 			const tags = yield* Tags
 			yield* tags.setDescription(data.name, data.description)
-		}).pipe(RuntimeServer.runPromise)
+		})
 	)
 
-export const setTagPinned = createServerFn({ method: 'POST' })
-	.middleware([authMiddleware])
+export const setTagPinned = protectedServerFn({ method: 'POST' })
 	.validator(
 		S.toStandardSchemaV1(S.Struct({ name: S.String, isPinned: S.Boolean }))
 	)
-	.handler(({ data }) =>
+	.effect(({ data }) =>
 		Effect.gen(function* () {
 			const tags = yield* Tags
 			yield* tags.setPinned(data.name, data.isPinned)
-		}).pipe(RuntimeServer.runPromise)
+		})
 	)
 
-export const reorderPinnedTags = createServerFn({ method: 'POST' })
-	.middleware([authMiddleware])
+export const reorderPinnedTags = protectedServerFn({ method: 'POST' })
 	.validator(S.toStandardSchemaV1(S.Struct({ names: S.Array(S.String) })))
-	.handler(({ data }) =>
+	.effect(({ data }) =>
 		Effect.gen(function* () {
 			const tags = yield* Tags
 			yield* tags.reorderPinned(data.names)
-		}).pipe(RuntimeServer.runPromise)
+		})
 	)
 
-export const reorderTagProjects = createServerFn({ method: 'POST' })
-	.middleware([authMiddleware])
+export const reorderTagProjects = protectedServerFn({ method: 'POST' })
 	.validator(
 		S.toStandardSchemaV1(
 			S.Struct({ name: S.String, repoIds: S.Array(S.Number) })
 		)
 	)
-	.handler(({ data }) =>
+	.effect(({ data }) =>
 		Effect.gen(function* () {
 			const tags = yield* Tags
 			yield* tags.reorderProjects(data.name, data.repoIds)
-		}).pipe(RuntimeServer.runPromise)
+		})
 	)
 
 /** Adds/removes a single repo from a tag's curated pinned-projects set. */
-export const setTagProjectPinned = createServerFn({ method: 'POST' })
-	.middleware([authMiddleware])
+export const setTagProjectPinned = protectedServerFn({ method: 'POST' })
 	.validator(
 		S.toStandardSchemaV1(
 			S.Struct({ name: S.String, repoId: S.Number, pinned: S.Boolean })
 		)
 	)
-	.handler(({ data }) =>
+	.effect(({ data }) =>
 		Effect.gen(function* () {
 			const tags = yield* Tags
 			yield* tags.setProjectPinned(data.name, data.repoId, data.pinned)
-		}).pipe(RuntimeServer.runPromise)
+		})
 	)
