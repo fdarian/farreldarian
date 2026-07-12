@@ -4,7 +4,7 @@
 		"buildCommand": "bun run --filter=panel build"
 	},
 	"deploy": {
-		"startCommand": "bun --cwd apps/panel run start",
+		"startCommand": "cd apps/panel && bun run start",
 		"healthcheckPath": "/api/healthcheck",
 		"sleepApplication": true
 	}
