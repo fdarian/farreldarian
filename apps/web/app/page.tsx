@@ -4,17 +4,17 @@ import type { ActivityItem } from '@repo/api-contract'
 import NextLink from 'next/link'
 import { connection } from 'next/server'
 import type { AnchorHTMLAttributes } from 'react'
-import { cache, Suspense } from 'react'
-import { getActivity, getHighlights } from '@/server/panel/fetches'
+import { Suspense } from 'react'
+import {
+	type getActivity,
+	getHighlights,
+	memoed_getActivity,
+} from '@/server/panel/fetches'
 import { ActivityRow } from './components/activity-row'
 import { HighlightsCard } from './components/highlights-card'
 import { HomeTabs } from './components/home-tabs'
 import { HomeTab } from './components/home-tabs-value'
 import { TabCount } from './components/tab-count'
-
-// Both the Activity panel and the tab's count badge need this — cache() dedupes
-// the fetch to a single call per request instead of two independent round-trips.
-const getCachedActivity = cache(getActivity)
 
 export default function IndexPage() {
 	return (
@@ -204,7 +204,7 @@ async function ProjectsSection() {
 		// getActivity() can throw synchronously (missing credentials) as well as
 		// reject asynchronously (network/API failure) — try/catch covers both,
 		// a `.catch()` chain would only cover the latter.
-		activity = await getCachedActivity()
+		activity = await memoed_getActivity()
 	} catch {
 		return (
 			<p className='text-sm text-muted-foreground'>

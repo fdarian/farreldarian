@@ -8,6 +8,7 @@ import {
 } from '@repo/api-contract'
 import { Effect, Schema } from 'effect'
 import { cacheLife, cacheTag } from 'next/cache'
+import { cache } from 'react'
 import { CacheLife, CacheTags } from '@/server/cache'
 import { Panel } from '@/server/panel/client'
 import { RuntimeServer } from '@/server/runtime'
@@ -28,6 +29,7 @@ export async function getActivity(): Promise<
 		return Schema.encodeSync(ActivityResponse)(activity)
 	}).pipe(RuntimeServer.runPromise)
 }
+export const memoed_getActivity = cache(getActivity)
 
 export async function listProjects(
 	query?: ConstructorParameters<typeof ProjectsQuery>[0]
@@ -50,6 +52,7 @@ export async function listProjects(
 		return Schema.encodeSync(ProjectsResponse)(projects)
 	}).pipe(RuntimeServer.runPromise)
 }
+export const memoed_listProjects = cache(listProjects)
 
 export async function getHighlights(): Promise<
 	(typeof HighlightsResponse)['Encoded']

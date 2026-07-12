@@ -1,15 +1,15 @@
 import { Tabs } from '@base-ui/react/tabs'
-import { cache, Suspense } from 'react'
-import { getActivity, listProjects } from '@/server/panel/fetches'
+import { Suspense } from 'react'
+import {
+	memoed_getActivity,
+	memoed_listProjects,
+	type getActivity,
+	type listProjects,
+} from '@/server/panel/fetches'
 import { ActivityRow } from '../components/activity-row'
 import { TabCount } from '../components/tab-count'
 import { ProjectsExplorer } from './projects-explorer'
 import { SoftwareTabs } from './software-tabs'
-
-// Both a section and its tab's count badge need this — cache() dedupes
-// the fetch to a single call per request instead of two independent round-trips.
-const getCachedProjects = cache(listProjects)
-const getCachedActivity = cache(getActivity)
 
 export default function SoftwarePage() {
 	return (
@@ -74,7 +74,7 @@ async function ProjectsSection() {
 		// listProjects() can throw synchronously (missing credentials) as well as
 		// reject asynchronously (network/API failure) — try/catch covers both,
 		// a `.catch()` chain would only cover the latter.
-		projects = await getCachedProjects()
+		projects = await memoed_listProjects()
 	} catch {
 		return (
 			<p className='text-sm text-muted-foreground'>
@@ -90,7 +90,7 @@ async function ProjectsSection() {
 async function ContributionsSection() {
 	let activity: Awaited<ReturnType<typeof getActivity>>
 	try {
-		activity = await getCachedActivity()
+		activity = await memoed_getActivity()
 	} catch {
 		return (
 			<p className='text-sm text-muted-foreground'>
@@ -117,7 +117,7 @@ async function ContributionsSection() {
 /** Same cached fetch as ProjectsSection (deduped via cache()) — degrades to no badge rather than a fake count. */
 async function ProjectsCount() {
 	try {
-		const projects = await getCachedProjects()
+		const projects = await memoed_listProjects()
 		return <TabCount>{projects.length}</TabCount>
 	} catch {
 		return null
@@ -127,7 +127,7 @@ async function ProjectsCount() {
 /** Same cached fetch as ContributionsSection (deduped via cache()) — degrades to no badge rather than a fake count. */
 async function ContributionsCount() {
 	try {
-		const activity = await getCachedActivity()
+		const activity = await memoed_getActivity()
 		return <TabCount>{activity.openSource.length}</TabCount>
 	} catch {
 		return null
