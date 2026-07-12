@@ -54,16 +54,8 @@ export class Repos extends Context.Service<Repos>()('server/repos', {
 				const githubRepos = yield* github.listOwnRepos()
 				yield* upsertFromGithub(githubRepos)
 				const githubIds = githubRepos.map((repo) => repo.githubId)
-				const now = new Date()
-
-				if (githubIds.length === 0) {
-					yield* db.use((client) =>
-						client
-							.update(repos)
-							.set({ deletedAt: now })
-							.where(isNull(repos.deletedAt))
-					)
-				} else {
+				if (githubIds.length > 0) {
+					const now = new Date()
 					yield* db.use((client) =>
 						Promise.all([
 							client

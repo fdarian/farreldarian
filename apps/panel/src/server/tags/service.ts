@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { eq, isNull } from 'drizzle-orm'
 import { Context, Effect, Layer } from 'effect'
 import { Database } from '../db/service.ts'
 import { repos } from '../repos/drizzle.ts'
@@ -115,6 +115,7 @@ export class Tags extends Context.Service<Tags>()('server/tags', {
 								tags: repos.tags,
 							})
 							.from(repos)
+							.where(isNull(repos.deletedAt))
 							.orderBy(repos.owner, repos.name),
 						client.select().from(tags),
 					])

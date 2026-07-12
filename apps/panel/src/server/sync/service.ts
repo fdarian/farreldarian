@@ -37,24 +37,24 @@ export class Sync extends Context.Service<Sync>()('server/sync', {
 							error: String(error),
 						})
 				),
-				Effect.tap((summary) =>
-					db.use((client) =>
+				Effect.tap((summary) => {
+					const now = new Date()
+					return db.use((client) =>
 						client
 							.insert(syncState)
 							.values({
 								domain,
-								lastSyncedAt: summary.ok ? new Date() : null,
+								lastSyncedAt: summary.ok ? now : null,
 								lastError: summary.ok ? null : summary.error,
 							})
 							.onConflictDoUpdate({
 								target: syncState.domain,
-								set: {
-									lastSyncedAt: summary.ok ? new Date() : null,
-									lastError: summary.ok ? null : summary.error,
-								},
+								set: summary.ok
+									? { lastSyncedAt: now, lastError: null }
+									: { lastError: summary.error },
 							})
 					)
-				)
+				})
 			)
 
 		const syncAll = () =>
