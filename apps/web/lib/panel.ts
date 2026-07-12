@@ -44,9 +44,6 @@ export async function getActivity(): Promise<
 > {
 	'use cache'
 	cacheLife(CacheLife.common)
-	// Lets the panel force a fresh fetch on demand (see
-	// `apps/web/app/api/revalidate/route.ts`) once a sync actually lands new
-	// rows, instead of waiting out the full hour.
 	cacheTag(CacheTags.activity)
 
 	const { baseUrl, apiKey } = panelCredentials()
