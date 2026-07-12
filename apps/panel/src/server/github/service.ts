@@ -65,7 +65,7 @@ export class Github extends Context.Service<Github>()('server/github', {
 		// (this service is part of `layerMain`, used by every request).
 		const token = yield* Config.string('GITHUB_TOKEN').pipe(Config.option)
 		const username = yield* Config.string('GITHUB_USERNAME').pipe(
-			Config.withDefault('farreldarian')
+			Config.withDefault('fdarian')
 		)
 
 		const request = <T>(path: string) =>
