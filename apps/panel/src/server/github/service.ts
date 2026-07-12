@@ -1,4 +1,5 @@
 import { Config, Context, Effect, Layer, Option, Schema } from 'effect'
+import { FetchHttpClient, HttpClient } from 'effect/unstable/http'
 
 // `Schema.Defect` is broken in effect@4.0.0-beta.97 (crashes building the AST) —
 // `Schema.Unknown` is the workaround until it's fixed upstream.
@@ -67,6 +68,7 @@ export class Github extends Context.Service<Github>()('server/github', {
 		const username = yield* Config.string('GITHUB_USERNAME').pipe(
 			Config.withDefault('fdarian')
 		)
+		const client = yield* HttpClient.HttpClient
 
 		const request = <T>(path: string) =>
 			Effect.gen(function* () {
@@ -76,33 +78,30 @@ export class Github extends Context.Service<Github>()('server/github', {
 					})
 				}
 
-				const response = yield* Effect.tryPromise({
-					try: () =>
-						fetch(`https://api.github.com${path}`, {
-							headers: {
-								Authorization: `Bearer ${token.value}`,
-								Accept: 'application/vnd.github+json',
-								'X-GitHub-Api-Version': '2022-11-28',
-							},
-						}),
-					catch: (cause) => new GithubError({ cause }),
-				})
-
-				if (!response.ok) {
-					const body = yield* Effect.tryPromise({
-						try: () => response.text(),
-						catch: (cause) => new GithubError({ cause }),
+				const response = yield* client
+					.get(`https://api.github.com${path}`, {
+						headers: {
+							Authorization: `Bearer ${token.value}`,
+							Accept: 'application/vnd.github+json',
+							'X-GitHub-Api-Version': '2022-11-28',
+						},
 					})
+					.pipe(Effect.mapError((cause) => new GithubError({ cause })))
+
+				if (response.status >= 400) {
+					const body = yield* response.text.pipe(
+						Effect.mapError((cause) => new GithubError({ cause }))
+					)
 					return yield* new GithubError({
 						status: response.status,
 						cause: body,
 					})
 				}
 
-				return yield* Effect.tryPromise({
-					try: () => response.json() as Promise<T>,
-					catch: (cause) => new GithubError({ cause }),
-				})
+				return yield* response.json.pipe(
+					Effect.map((json) => json as T),
+					Effect.mapError((cause) => new GithubError({ cause }))
+				)
 			})
 
 		const listOwnRepos = (): Effect.Effect<
@@ -161,5 +160,7 @@ export class Github extends Context.Service<Github>()('server/github', {
 		return { username, listOwnRepos, searchIssues }
 	}),
 }) {
-	static layer = Layer.effect(Github, this.make)
+	static layer = Layer.effect(Github, this.make).pipe(
+		Layer.provide(FetchHttpClient.layer)
+	)
 }
