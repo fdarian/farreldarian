@@ -110,11 +110,18 @@ CREATE TABLE `repos` (
 	`year` integer,
 	`stargazersCount` integer,
 	`pushedAt` integer,
+	`deletedAt` integer,
 	`createdAt` integer NOT NULL,
 	`updatedAt` integer NOT NULL
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `repos_githubId_unique` ON `repos` (`githubId`);--> statement-breakpoint
+CREATE TABLE `sync_state` (
+	`domain` text PRIMARY KEY NOT NULL,
+	`lastSyncedAt` integer,
+	`lastError` text
+);
+--> statement-breakpoint
 CREATE TABLE `tags` (
 	`name` text PRIMARY KEY NOT NULL,
 	`description` text,
