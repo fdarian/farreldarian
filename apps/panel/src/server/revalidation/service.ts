@@ -19,7 +19,7 @@ export class Revalidation extends Context.Service<Revalidation>()(
 			// Both optional — this is opt-in wiring to an external (web app)
 			// endpoint, not something the panel should refuse to boot over.
 			const url = yield* Config.string('WEB_REVALIDATE_URL').pipe(Config.option)
-			const secret = yield* Config.string('REVALIDATE_SECRET').pipe(
+			const secret = yield* Config.string('WEB_REVALIDATE_SECRET').pipe(
 				Config.option
 			)
 
@@ -27,7 +27,7 @@ export class Revalidation extends Context.Service<Revalidation>()(
 				Effect.gen(function* () {
 					if (Option.isNone(url) || Option.isNone(secret)) {
 						yield* Effect.logDebug(
-							'[revalidation] WEB_REVALIDATE_URL/REVALIDATE_SECRET not configured — skipping'
+							'[revalidation] WEB_REVALIDATE_URL/WEB_REVALIDATE_SECRET not configured — skipping'
 						)
 						return
 					}
