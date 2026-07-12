@@ -15,6 +15,7 @@ import {
 } from 'effect/unstable/http'
 import { HttpApiClient } from 'effect/unstable/httpapi'
 import { cacheLife, cacheTag } from 'next/cache'
+import { CacheLife, CacheTags } from '@/server/cache'
 
 /** Reads and validates the panel API credentials, throwing when either is missing. */
 function panelCredentials() {
@@ -42,11 +43,11 @@ export async function getActivity(): Promise<
 	(typeof ActivityResponse)['Encoded']
 > {
 	'use cache'
-	cacheLife('common')
+	cacheLife(CacheLife.common)
 	// Lets the panel force a fresh fetch on demand (see
 	// `apps/web/app/api/revalidate/route.ts`) once a sync actually lands new
 	// rows, instead of waiting out the full hour.
-	cacheTag('activity')
+	cacheTag(CacheTags.activity)
 
 	const { baseUrl, apiKey } = panelCredentials()
 	return Effect.runPromise(
@@ -65,8 +66,8 @@ export async function listProjects(
 	query?: ConstructorParameters<typeof ProjectsQuery>[0]
 ): Promise<(typeof ProjectsResponse)['Encoded']> {
 	'use cache'
-	cacheLife('common')
-	cacheTag('projects')
+	cacheLife(CacheLife.common)
+	cacheTag(CacheTags.projects)
 
 	const { baseUrl, apiKey } = panelCredentials()
 	return Effect.runPromise(
@@ -90,8 +91,8 @@ export async function getHighlights(): Promise<
 	(typeof HighlightsResponse)['Encoded']
 > {
 	'use cache'
-	cacheLife('common')
-	cacheTag('highlights')
+	cacheLife(CacheLife.common)
+	cacheTag(CacheTags.highlight)
 
 	const { baseUrl, apiKey } = panelCredentials()
 	return Effect.runPromise(

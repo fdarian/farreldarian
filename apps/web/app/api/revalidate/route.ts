@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { revalidateTag } from 'next/cache'
+import { CacheLife, CacheTags } from '@/server/cache'
 
 const BEARER_PREFIX = 'Bearer '
 
@@ -25,9 +26,9 @@ export async function POST(request: Request): Promise<Response> {
 	// The profile must match the `cacheLife` profile passed alongside
 	// `cacheTag` in `lib/panel.ts` — Next's Cache Components API ties
 	// revalidation to that profile, not just the tag.
-	revalidateTag('activity', 'hours')
-	revalidateTag('projects', 'hours')
-	revalidateTag('highlights', 'hours')
+	revalidateTag(CacheTags.activity, CacheLife.common)
+	revalidateTag(CacheTags.projects, CacheLife.common)
+	revalidateTag(CacheTags.highlight, CacheLife.common)
 
 	return Response.json({ revalidated: true })
 }
