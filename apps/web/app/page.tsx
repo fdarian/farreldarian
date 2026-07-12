@@ -248,7 +248,7 @@ async function HighlightsSection() {
 /** Same cached fetch as ActivitySection (deduped via cache()) — degrades to no badge rather than a fake count. */
 async function ActivityCount() {
 	try {
-		const activity = await getCachedActivity()
+		const activity = await memoed_getActivity()
 		return (
 			<TabCount>
 				{activity.projects.length + activity.openSource.length}
