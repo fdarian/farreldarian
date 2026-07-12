@@ -42,9 +42,7 @@ export async function getActivity(): Promise<
 	(typeof ActivityResponse)['Encoded']
 > {
 	'use cache'
-	// Activity/projects change slowly (new commits, occasional PRs) — an hour
-	// of staleness is unnoticeable but saves a panel round-trip per request.
-	cacheLife('hours')
+	cacheLife('common')
 	// Lets the panel force a fresh fetch on demand (see
 	// `apps/web/app/api/revalidate/route.ts`) once a sync actually lands new
 	// rows, instead of waiting out the full hour.
@@ -67,7 +65,7 @@ export async function listProjects(
 	query?: ConstructorParameters<typeof ProjectsQuery>[0]
 ): Promise<(typeof ProjectsResponse)['Encoded']> {
 	'use cache'
-	cacheLife('hours')
+	cacheLife('common')
 	cacheTag('projects')
 
 	const { baseUrl, apiKey } = panelCredentials()
@@ -92,7 +90,7 @@ export async function getHighlights(): Promise<
 	(typeof HighlightsResponse)['Encoded']
 > {
 	'use cache'
-	cacheLife('hours')
+	cacheLife('common')
 	cacheTag('highlights')
 
 	const { baseUrl, apiKey } = panelCredentials()
