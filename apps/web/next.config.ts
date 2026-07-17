@@ -21,10 +21,6 @@ const config: NextConfig = {
 				source: '/stats/script.js',
 				destination: `${umamiUrl}/script.js`,
 			},
-			{
-				source: '/stats/api/send',
-				destination: `${umamiUrl}/api/send`,
-			},
 		]
 	},
 }
