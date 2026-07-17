@@ -13,16 +13,6 @@ const config: NextConfig = {
 	experimental: {
 		useTypeScriptCli: true,
 	},
-	async rewrites() {
-		const umamiUrl = process.env.UMAMI_URL
-		if (umamiUrl == null) return []
-		return [
-			{
-				source: '/stats/script.js',
-				destination: `${umamiUrl}/script.js`,
-			},
-		]
-	},
 }
 
 module.exports = config
