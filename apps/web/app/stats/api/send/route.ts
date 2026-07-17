@@ -1,7 +1,3 @@
-import 'server-only'
-
-export const dynamic = 'force-dynamic'
-
 const STRIPPED_UPSTREAM_HEADERS = new Set([
 	'host',
 	'content-length',
