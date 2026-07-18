@@ -2,6 +2,7 @@ import '@/styles/global.css'
 import { Agentation } from 'agentation'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Lora } from 'next/font/google'
+import { PostHogProvider } from './components/posthog-provider'
 import { SiteHeader } from './components/site-header'
 import { Umami } from './components/umami'
 import { Providers } from './providers'
@@ -34,6 +35,7 @@ export default function RootLayout({
 						</div>
 					</main>
 					<Umami />
+					<PostHogProvider />
 					{process.env.NODE_ENV === 'development' && <Agentation />}
 				</Providers>
 			</body>
