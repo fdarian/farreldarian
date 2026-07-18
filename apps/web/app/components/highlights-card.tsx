@@ -3,6 +3,7 @@
 import { Tabs } from '@base-ui/react/tabs'
 import { ClockClockwiseIcon, PushPinIcon } from '@phosphor-icons/react/ssr'
 import type { Highlight, HighlightProject } from '@repo/api-contract'
+import posthog from 'posthog-js'
 import { useState } from 'react'
 import { RelativeTime } from '@/app/components/relative-time'
 
@@ -67,6 +68,12 @@ function HighlightRow(props: { project: HighlightProject }) {
 				rel='noopener noreferrer'
 				href={props.project.href}
 				className='shrink-0 border-b border-border transition-colors ease-out duration-100 hover:border-foreground'
+				onClick={() =>
+					posthog.capture('highlight_project_clicked', {
+						project_name: props.project.name,
+						project_href: props.project.href,
+					})
+				}
 			>
 				{props.project.name}
 			</a>

@@ -15,6 +15,7 @@ import { HighlightsCard } from './components/highlights-card'
 import { HomeTabs } from './components/home-tabs'
 import { HomeTab } from './components/home-tabs-value'
 import { TabCount } from './components/tab-count'
+import { TrackedLink } from './components/tracked-link'
 
 export default function IndexPage() {
 	return (
@@ -60,13 +61,34 @@ function LetsConnectSection() {
 			<p className='text-sm text-muted-foreground font-medium'>Let's connect</p>
 			<div className='h-px w-16 shrink-0 bg-border' />
 			<div className='flex gap-6 text-sm'>
-				<Link href='mailto:farrel@fdarian.com' external>
+				<TrackedLink
+					href='mailto:farrel@fdarian.com'
+					target='_blank'
+					rel='noopener noreferrer'
+					eventName='social_link_clicked'
+					eventProperties={{ platform: 'mail' }}
+					className='border-b border-border transition-colors ease-out duration-100 hover:border-foreground inline-flex items-center'
+				>
 					Mail
-				</Link>
-				<Link href='https://www.linkedin.com/in/farreldarian/' external>
+				</TrackedLink>
+				<TrackedLink
+					href='https://www.linkedin.com/in/farreldarian/'
+					target='_blank'
+					rel='noopener noreferrer'
+					eventName='social_link_clicked'
+					eventProperties={{ platform: 'linkedin' }}
+					className='border-b border-border transition-colors ease-out duration-100 hover:border-foreground inline-flex items-center'
+				>
 					LinkedIn
-				</Link>
-				<Link href='https://twitter.com/farreldarian' external>
+				</TrackedLink>
+				<TrackedLink
+					href='https://twitter.com/farreldarian'
+					target='_blank'
+					rel='noopener noreferrer'
+					eventName='social_link_clicked'
+					eventProperties={{ platform: 'x' }}
+					className='border-b border-border transition-colors ease-out duration-100 hover:border-foreground inline-flex items-center'
+				>
 					<svg
 						viewBox='593.869 607.502 11.746 12.01'
 						width='12'
@@ -80,10 +102,17 @@ function LetsConnectSection() {
 							fill='currentColor'
 						/>
 					</svg>
-				</Link>
-				<Link href='https://github.com/fdarian' external>
+				</TrackedLink>
+				<TrackedLink
+					href='https://github.com/fdarian'
+					target='_blank'
+					rel='noopener noreferrer'
+					eventName='social_link_clicked'
+					eventProperties={{ platform: 'github' }}
+					className='border-b border-border transition-colors ease-out duration-100 hover:border-foreground inline-flex items-center'
+				>
 					Github
-				</Link>
+				</TrackedLink>
 			</div>
 		</section>
 	)
@@ -311,14 +340,20 @@ function Talks(props: {
 				</p>
 				<p>{props.event}</p>
 
-				<a
+				<TrackedLink
+					href={props.link}
 					target='_blank'
 					rel='noopener noreferrer'
-					href={props.link}
+					eventName='talk_watched'
+					eventProperties={{
+						talk_title: props.title,
+						talk_event: props.event,
+						talk_year: props.year,
+					}}
 					className='border-b border-border text-xs transition-colors ease-out duration-100 hover:border-foreground'
 				>
 					Watch talk
-				</a>
+				</TrackedLink>
 			</div>
 			<p>{props.title}</p>
 		</div>
