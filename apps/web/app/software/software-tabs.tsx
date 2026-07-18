@@ -2,6 +2,7 @@
 
 import { Tabs } from '@base-ui/react/tabs'
 import { parseAsStringLiteral, useQueryState } from 'nuqs'
+import posthog from 'posthog-js'
 import type { ReactNode } from 'react'
 
 const softwareTabValues = ['projects', 'contributions'] as const
@@ -17,7 +18,10 @@ export function SoftwareTabs({ children }: { children: ReactNode }) {
 	return (
 		<Tabs.Root
 			value={tab}
-			onValueChange={(value) => setTab(value as SoftwareTab)}
+			onValueChange={(value) => {
+				setTab(value as SoftwareTab)
+				posthog.capture('software_tab_changed', { tab: value })
+			}}
 			render={<section className='space-y-4' />}
 		>
 			{children}

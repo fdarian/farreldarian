@@ -1,5 +1,7 @@
-import { ArrowUpRightIcon } from '@phosphor-icons/react/dist/ssr/ArrowUpRight'
+'use client'
+
 import type { ActivityItem } from '@repo/api-contract'
+import posthog from 'posthog-js'
 import { RelativeTime } from '@/app/components/relative-time'
 
 /**
@@ -18,6 +20,13 @@ export function ActivityRow({ item }: { item: ActivityItem }) {
 					target='_blank'
 					rel='noopener noreferrer'
 					className='min-w-0 truncate border-b border-border text-foreground transition-colors ease-out duration-100 hover:border-foreground'
+					onClick={() =>
+						posthog.capture('activity_link_clicked', {
+							title: item.title,
+							repo: item.repo,
+							type: 'title',
+						})
+					}
 				>
 					{item.title}
 				</a>
@@ -26,6 +35,13 @@ export function ActivityRow({ item }: { item: ActivityItem }) {
 					target='_blank'
 					rel='noopener noreferrer'
 					className='shrink-0 text-muted-foreground transition-colors hover:text-foreground border-border border-b hover:border-muted-foreground'
+					onClick={() =>
+						posthog.capture('activity_link_clicked', {
+							title: item.title,
+							repo: item.repo,
+							type: 'repo',
+						})
+					}
 				>
 					{item.repo}
 				</a>

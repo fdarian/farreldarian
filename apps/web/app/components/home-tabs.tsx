@@ -1,6 +1,7 @@
 'use client'
 
 import { Tabs } from '@base-ui/react/tabs'
+import posthog from 'posthog-js'
 import { type ReactNode, useState } from 'react'
 import { HomeTab } from './home-tabs-value'
 
@@ -15,7 +16,10 @@ export function HomeTabs(props: { children: ReactNode }) {
 	return (
 		<Tabs.Root
 			value={tab}
-			onValueChange={(value) => setTab(value as HomeTab)}
+			onValueChange={(value) => {
+				setTab(value as HomeTab)
+				posthog.capture('home_tab_changed', { tab: value })
+			}}
 			render={<section className='space-y-2 mt-20' />}
 		>
 			{props.children}

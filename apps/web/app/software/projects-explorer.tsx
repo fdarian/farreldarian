@@ -5,6 +5,7 @@ import { PackageIcon } from '@phosphor-icons/react/dist/ssr/Package'
 import { StarIcon } from '@phosphor-icons/react/dist/ssr/Star'
 import type { Project } from '@repo/api-contract'
 import { debounce, parseAsArrayOf, parseAsString, useQueryState } from 'nuqs'
+import posthog from 'posthog-js'
 import { useMemo } from 'react'
 import { RelativeTime } from '@/app/components/relative-time'
 import { Tooltip, TooltipPopup, TooltipTrigger } from '@/components/ui/tooltip'
@@ -48,18 +49,25 @@ export function ProjectsExplorer({
 	}, [projects, search, activeTagSet])
 
 	function toggleTag(tag: string) {
+		const action = activeTagSet.has(tag) ? 'removed' : 'added'
 		setActiveTags((current) =>
 			current.includes(tag)
 				? current.filter((activeTag) => activeTag !== tag)
 				: [...current, tag]
 		)
+		posthog.capture('project_tag_toggled', { tag, action })
 	}
 
 	return (
 		<div className='space-y-4'>
 			<input
 				value={search}
-				onChange={(event) => setSearch(event.target.value)}
+				onChange={(event) => {
+					setSearch(event.target.value)
+					if (event.target.value.trim()) {
+						posthog.capture('project_searched', { query: event.target.value })
+					}
+				}}
 				placeholder='Search projects...'
 				className='w-full border-0 border-border border-b bg-transparent pb-2 text-sm outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-foreground'
 			/>
@@ -118,6 +126,12 @@ function ProjectRow({ project }: { project: Project }) {
 					target='_blank'
 					rel='noopener noreferrer'
 					className='shrink-0 border-b border-border transition-colors ease-out duration-100 hover:border-foreground'
+					onClick={() =>
+						posthog.capture('project_link_clicked', {
+							project_name: project.name,
+							project_href: project.href,
+						})
+					}
 				>
 					{project.name}
 				</a>
