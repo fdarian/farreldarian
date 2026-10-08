@@ -1,7 +1,25 @@
+import { realpathSync } from 'node:fs'
+import { createRequire } from 'node:module'
+import { dirname, isAbsolute, relative, resolve, sep } from 'node:path'
 import type { NextConfig } from 'next/dist/types'
 import { POSTHOG_PROXY_PATH } from './lib/posthog'
 
+const require = createRequire(import.meta.url)
+const nextPackagePath = realpathSync(require.resolve('next/package.json'))
+const repoRoot = realpathSync(resolve(import.meta.dirname, '../..'))
+
+const commonAncestor = (directory: string, path: string): string => {
+	const offset = relative(directory, path)
+	if (offset !== '..' && !offset.startsWith(`..${sep}`) && !isAbsolute(offset))
+		return directory
+	return commonAncestor(dirname(directory), path)
+}
+
 const config: NextConfig = {
+	turbopack: {
+		/** Turbopack can't resolve next in pnpm's global store outside its root. Remove after https://github.com/vercel/next.js/pull/98003 ships and Next is upgraded. */
+		root: commonAncestor(repoRoot, nextPackagePath),
+	},
 	reactStrictMode: true,
 	cacheComponents: true,
 	cacheLife: {
