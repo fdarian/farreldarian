@@ -5,7 +5,7 @@
 	"scripts": {
 		"env:inject": "infisical export --path=/fdariancom/panel --format=dotenv-export",
 		"env:run": "infisical run --path=/fdariancom/panel --",
-		"dev": "NITRO_DEV_RUNNER=bun-process vite dev",
+		"dev": "bun -b scripts/dev.ts",
 		"build": "vite build",
 		"start": "bun run .output/server/index.mjs",
 		"check:type": "tsc --noEmit",
@@ -30,6 +30,7 @@
 		"better-auth": "^1.6.23",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
+		"devsess": "0.5.0",
 		"drizzle-orm": "^0.45.2",
 		"effect": "4.0.2",
 		"lucide-react": "^1.24.0",

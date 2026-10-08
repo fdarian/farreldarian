@@ -2,7 +2,7 @@
 	"name": "web",
 	"private": true,
 	"scripts": {
-		"dev": "next dev",
+		"dev": "bun -b scripts/dev.ts",
 		"build": "next build",
 		"start": "next start",
 		"check:type": "tsc --noEmit",
@@ -10,11 +10,13 @@
 	},
 	"dependencies": {
 		"@base-ui/react": "^1.6.0",
+		"@effect/platform-bun": "4.0.2",
 		"@phosphor-icons/react": "^2.1.10",
 		"@repo/api-contract": "workspace:*",
 		"@vercel/analytics": "^1.4.1",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
+		"devsess": "0.5.0",
 		"effect": "4.0.2",
 		"lucide-react": "^1.24.0",
 		"next": "16.4.0",
@@ -28,6 +30,7 @@
 		"tailwind-merge": "^3.6.0"
 	},
 	"devDependencies": {
+		"@next/env": "16.4.0",
 		"@repo/config": "workspace:*",
 		"@tailwindcss/postcss": "^4",
 		"@types/node": "25.0.6",
