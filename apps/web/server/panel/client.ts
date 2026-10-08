@@ -1,12 +1,12 @@
 import { PanelApi } from '@repo/api-contract'
 import { Config, Context, Effect, Layer } from 'effect'
-import { HttpClient, HttpClientRequest } from 'effect/unstable/http'
-import { HttpApiClient } from 'effect/unstable/httpapi'
+import { HttpClient, HttpClientRequest } from 'effect/http'
+import { HttpApiClient } from 'effect/http-api'
 
 export class Panel extends Context.Service<Panel>()('Panel', {
 	make: Effect.gen(function* () {
-		const baseUrl = yield* Config.string('PANEL_API_URL')
-		const apiKey = yield* Config.string('PANEL_API_KEY')
+		const baseUrl = yield* Config.String('PANEL_API_URL')
+		const apiKey = yield* Config.String('PANEL_API_KEY')
 
 		const client = yield* HttpApiClient.make(PanelApi, {
 			baseUrl,

@@ -1,9 +1,9 @@
 import { Config, Context, Effect, Layer, Option, Schema } from 'effect'
-import { FetchHttpClient, HttpClient } from 'effect/unstable/http'
+import { FetchHttpClient, HttpClient } from 'effect/http'
 
 // `Schema.Defect` is broken in effect@4.0.0-beta.97 (crashes building the AST) —
 // `Schema.Unknown` is the workaround until it's fixed upstream.
-export class GithubError extends Schema.TaggedErrorClass<GithubError>()(
+export class GithubError extends Schema.TaggedError<GithubError>()(
 	'GithubError',
 	{
 		status: Schema.optional(Schema.Number),
@@ -64,8 +64,8 @@ export class Github extends Context.Service<Github>()('server/github', {
 		// Optional at construction time — a missing token only fails the specific
 		// calls that need GitHub, instead of taking down the whole shared runtime
 		// (this service is part of `layerMain`, used by every request).
-		const token = yield* Config.string('GITHUB_TOKEN').pipe(Config.option)
-		const username = yield* Config.string('GITHUB_USERNAME').pipe(
+		const token = yield* Config.String('GITHUB_TOKEN').pipe(Config.option)
+		const username = yield* Config.String('GITHUB_USERNAME').pipe(
 			Config.withDefault('fdarian')
 		)
 		const client = yield* HttpClient.HttpClient

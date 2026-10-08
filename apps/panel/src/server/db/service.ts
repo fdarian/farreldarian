@@ -14,20 +14,20 @@ const schema = {
 	...syncSchema,
 }
 
-export const databaseUrl = Config.string('DATABASE_URL').pipe(
+export const databaseUrl = Config.String('DATABASE_URL').pipe(
 	Config.withDefault('./data/panel.sqlite')
 )
 
 // Matches drizzle.config.ts's default output dir + migrations table — kept in
 // sync manually since drizzle-kit doesn't expose its resolved config for reuse.
-const migrationsFolder = Config.string('MIGRATIONS_FOLDER').pipe(
+const migrationsFolder = Config.String('MIGRATIONS_FOLDER').pipe(
 	Config.withDefault('./drizzle')
 )
 const migrationsTable = '__drizzle_migrations_panel'
 
 // `Schema.Defect` is broken in effect@4.0.0-beta.97 (crashes building the AST) —
 // `Schema.Unknown` is the workaround until it's fixed upstream.
-export class DbError extends Schema.TaggedErrorClass<DbError>()('DbError', {
+export class DbError extends Schema.TaggedError<DbError>()('DbError', {
 	cause: Schema.Unknown,
 }) {
 	constructor(cause: unknown) {

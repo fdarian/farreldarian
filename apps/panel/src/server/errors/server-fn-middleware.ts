@@ -4,7 +4,7 @@ import * as S from 'effect/Schema'
 import { RuntimeServer } from '../runtime.ts'
 
 /** Error whose `message` is safe to re-throw to the client as-is. */
-export class ExposeError extends S.TaggedErrorClass<ExposeError>()(
+export class ExposeError extends S.TaggedError<ExposeError>()(
 	'ExposeError',
 	{
 		message: S.String,

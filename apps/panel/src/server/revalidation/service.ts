@@ -2,7 +2,7 @@ import { Config, Context, Effect, Layer, Option, Schema } from 'effect'
 
 // `Schema.Defect` is broken in effect@4.0.0-beta.97 (crashes building the AST) —
 // `Schema.Unknown` is the workaround until it's fixed upstream.
-export class RevalidationError extends Schema.TaggedErrorClass<RevalidationError>()(
+export class RevalidationError extends Schema.TaggedError<RevalidationError>()(
 	'RevalidationError',
 	{ cause: Schema.Unknown }
 ) {}
@@ -18,8 +18,8 @@ export class Revalidation extends Context.Service<Revalidation>()(
 		make: Effect.gen(function* () {
 			// Both optional — this is opt-in wiring to an external (web app)
 			// endpoint, not something the panel should refuse to boot over.
-			const url = yield* Config.string('WEB_REVALIDATE_URL').pipe(Config.option)
-			const secret = yield* Config.string('WEB_REVALIDATE_SECRET').pipe(
+			const url = yield* Config.String('WEB_REVALIDATE_URL').pipe(Config.option)
+			const secret = yield* Config.String('WEB_REVALIDATE_SECRET').pipe(
 				Config.option
 			)
 

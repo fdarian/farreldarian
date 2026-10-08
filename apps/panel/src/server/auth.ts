@@ -17,7 +17,7 @@ export class Auth extends Context.Service<Auth>()('server/auth', {
 		const db = yield* Database
 		const google = yield* AuthGoogle
 		const secret = Option.getOrUndefined(
-			yield* Config.string('BETTER_AUTH_SECRET').pipe(Config.option)
+			yield* Config.String('BETTER_AUTH_SECRET').pipe(Config.option)
 		)
 		const baseURL = yield* baseURLConfig
 		const isDev = process.env.NODE_ENV === 'development'
@@ -78,7 +78,7 @@ export class Auth extends Context.Service<Auth>()('server/auth', {
 
 // `Schema.Defect` is broken in effect@4.0.0-beta.97 (crashes building the AST) —
 // `Schema.Unknown` is the workaround until it's fixed upstream.
-class AuthError extends Schema.TaggedErrorClass<AuthError>()('AuthError', {
+class AuthError extends Schema.TaggedError<AuthError>()('AuthError', {
 	message: Schema.String,
 	cause: Schema.optional(Schema.Unknown),
 }) {}
