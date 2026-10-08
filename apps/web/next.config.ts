@@ -11,6 +11,7 @@ const config: NextConfig = {
 			expire: 31_556_952,
 		},
 	},
+	partialPrefetching: false,
 	experimental: {
 		useTypeScriptCli: true,
 	},
