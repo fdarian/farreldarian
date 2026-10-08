@@ -1,4 +1,4 @@
-import { HttpApi, HttpApiEndpoint, HttpApiGroup } from 'effect/unstable/httpapi'
+import { HttpApi, HttpApiEndpoint, HttpApiGroup } from 'effect/http-api'
 import { ApiKeyAuth } from './auth.ts'
 import {
 	ActivityResponse,

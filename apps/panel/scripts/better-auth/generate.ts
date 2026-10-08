@@ -1,11 +1,11 @@
 import * as BunRuntime from '@effect/platform-bun/BunRuntime'
 import * as BunServices from '@effect/platform-bun/BunServices'
 import { Effect } from 'effect'
+import { ChildProcess, ChildProcessSpawner } from 'effect/process'
 import * as S from 'effect/Schema'
 import * as Stream from 'effect/Stream'
-import { ChildProcess, ChildProcessSpawner } from 'effect/unstable/process'
 
-class CommandExecutionError extends S.TaggedErrorClass<CommandExecutionError>()(
+class CommandExecutionError extends S.TaggedError<CommandExecutionError>()(
 	'CommandExecutionError',
 	{
 		exitCode: S.Number,

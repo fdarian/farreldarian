@@ -6,7 +6,7 @@ import { nitro } from 'nitro/vite'
 import { defineConfig } from 'vite'
 
 const config = Effect.gen(function* () {
-	const port = yield* Config.number('PORT').pipe(Config.withDefault(3000))
+	const port = yield* Config.Number('PORT').pipe(Config.withDefault(3000))
 	return defineConfig({
 		server: { port },
 		resolve: { tsconfigPaths: true },

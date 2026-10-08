@@ -1,10 +1,10 @@
 import { Tabs } from '@base-ui/react/tabs'
 import { Suspense } from 'react'
 import {
-	memoed_getActivity,
-	memoed_listProjects,
 	type getActivity,
 	type listProjects,
+	memoed_getActivity,
+	memoed_listProjects,
 } from '@/server/panel/fetches'
 import { ActivityRow } from '../components/activity-row'
 import { TabCount } from '../components/tab-count'

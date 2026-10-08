@@ -1,5 +1,5 @@
 import { Context, Schema } from 'effect'
-import { HttpApiMiddleware, HttpApiSecurity } from 'effect/unstable/httpapi'
+import { HttpApiMiddleware, HttpApiSecurity } from 'effect/http-api'
 
 /** The caller identity attached to the request context once `ApiKeyAuth` verifies the key. */
 export class CurrentApiCaller extends Context.Service<
@@ -7,7 +7,7 @@ export class CurrentApiCaller extends Context.Service<
 	{ userId: string }
 >()('CurrentApiCaller') {}
 
-export class Unauthorized extends Schema.TaggedErrorClass<Unauthorized>()(
+export class Unauthorized extends Schema.TaggedError<Unauthorized>()(
 	'Unauthorized',
 	{},
 	{ httpApiStatus: 401 }

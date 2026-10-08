@@ -6,8 +6,8 @@ import { shorten } from '#/lib/strings/shorten.ts'
 export class AuthGoogle extends Context.Service<AuthGoogle>()('auth/Google', {
 	make: Effect.gen(function* () {
 		const authOptions = yield* Effect.all({
-			clientId: Config.string('AUTH_GOOGLE_ID'),
-			clientSecret: Config.string('AUTH_GOOGLE_SECRET'),
+			clientId: Config.String('AUTH_GOOGLE_ID'),
+			clientSecret: Config.String('AUTH_GOOGLE_SECRET'),
 		}).pipe(
 			Effect.map((google) => ({ google }) satisfies { google: GoogleOptions }),
 			Effect.orElseSucceed(() => ({}))

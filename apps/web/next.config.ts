@@ -1,5 +1,16 @@
+import { realpathSync } from 'node:fs'
+import { createRequire } from 'node:module'
+import { sep } from 'node:path'
 import type { NextConfig } from 'next/dist/types'
 import { POSTHOG_PROXY_PATH } from './lib/posthog'
+
+const require = createRequire(import.meta.url)
+const nextPackagePath = realpathSync(require.resolve('next/package.json'))
+const nextPathSegments = nextPackagePath.split(sep)
+const linksIndex = nextPathSegments.indexOf('links')
+// Absent with a project-local store (e.g. CI), where no extra root is needed.
+const pnpmGlobalStore =
+	linksIndex === -1 ? null : nextPathSegments.slice(0, linksIndex).join(sep)
 
 const config: NextConfig = {
 	reactStrictMode: true,
@@ -11,8 +22,14 @@ const config: NextConfig = {
 			expire: 31_556_952,
 		},
 	},
+	partialPrefetching: true,
 	experimental: {
 		useTypeScriptCli: true,
+		// pnpm's global virtual store symlinks node_modules to a directory outside
+		// the project root, which Turbopack won't follow unless it's a known root.
+		...(pnpmGlobalStore && {
+			turbopackAdditionalRoots: { pnpmGlobalStore: { path: pnpmGlobalStore } },
+		}),
 	},
 	// posthog-js posts events to a trailing-slash path (`/e/`). Next's default
 	// trailing-slash redirect runs before `beforeFiles` rewrites and would
