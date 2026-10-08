@@ -2,10 +2,6 @@
 	"name": "farreldarian",
 	"private": true,
 	"packageManager": "pnpm@12.9.0",
-	"workspaces": [
-		"packages/*",
-		"apps/*"
-	],
 	"scripts": {
 		"format": "biome check --write"
 	},

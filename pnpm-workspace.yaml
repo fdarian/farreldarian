@@ -1,0 +1,9 @@
+packages:
+  - packages/*
+  - apps/*
+allowBuilds:
+  better-sqlite3: false
+  core-js: false
+  esbuild: false
+  msgpackr-extract: false
+  sharp: false
