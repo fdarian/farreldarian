@@ -12,3 +12,15 @@ minimumReleaseAgeExclude:
   - '@effect/platform-node-shared@4.0.2'
   - '@effect/sql-sqlite-bun@4.0.2'
   - effect@4.0.2
+# With the global virtual store, packages only see their declared deps, so the
+# `react` types these packages import resolve to nothing and their props collapse.
+packageExtensions:
+  '@phosphor-icons/react':
+    peerDependencies:
+      '@types/react': '*'
+  next-themes:
+    peerDependencies:
+      '@types/react': '*'
+  next:
+    peerDependencies:
+      '@types/react': '*'
