@@ -9,7 +9,8 @@ Public personal site.
 - Biome
 
 ## Dev
-- `bun --cwd apps/web dev`
+- `bun --cwd apps/web dev` — runs `scripts/dev.ts` ([devsess](https://github.com/fdarian/devsess)): sticky per-worktree port, then `next dev`. Fails fast unless `PANEL_API_URL` is set in the shell or `apps/web/.env`.
+- `bun --cwd apps/web dev --local panel` — takes `PANEL_API_URL` from the panel dev server running in this worktree (`bun dev` in `apps/panel`) instead.
 - `bun --cwd apps/web run check:type` / `check:lint`
 
 ## Architecture

@@ -6,10 +6,15 @@ projects, backed by a toggle over my GitHub repos.
 
 ## Env
 
-Secrets live in Infisical (`.infisical.json`), not a committed `.env`. Run the panel with
-them injected: `bun env:run -- bun dev` (`env:run` → `infisical run --path=/fdariancom/panel --`).
-Plain `bun dev` boots **without** them, so `/repos` and the GitHub-backed `/api/v1/*`
+Secrets live in Infisical (`.infisical.json`), not a committed `.env`. `bun dev` runs
+`scripts/dev.ts` ([devsess](https://github.com/fdarian/devsess)), which exports
+`--env=dev --path=/fdariancom/panel` and merges it under the shell env (shell wins), so it
+needs an `infisical login`. Without the secrets `/repos` and the GitHub-backed `/api/v1/*`
 endpoints fail with `GithubError`. `bun env:inject` dumps the same vars in dotenv format.
+
+The script also gives each worktree its own session: a sticky `PORT`, a per-session SQLite
+file as `DATABASE_URL` (unless one is already set), and a `.data/running.json` signal
+that `apps/web`'s `bun dev --local panel` waits on to learn the panel's URL.
 
 - `GITHUB_TOKEN` — optional at boot (the whole shared runtime would otherwise refuse to
   start for every request, not just GitHub-touching ones); required for `/repos`,
@@ -30,9 +35,8 @@ endpoints fail with `GithubError`. `bun env:inject` dumps the same vars in doten
 `Only URLs with a scheme in: file, data, and node are supported`, tracing into real
 `node:internal/modules/esm/*` even though the host process is Bun. Fixed by forcing the
 `bun-process` dev runner — both `nitro({ devServer: { runner: 'bun-process' } })` in
-`vite.config.ts` and `NITRO_DEV_RUNNER=bun-process` on the `dev` script in
-`package.json` (belt and suspenders; either alone is sufficient). Confirmed this fixes
-auth end-to-end under `vite dev`, including a live dev-email sign-in with a session
+`vite.config.ts` and `NITRO_DEV_RUNNER=bun-process` set by `scripts/dev.ts` (belt and
+suspenders; either alone is sufficient). Confirmed this fixes auth end-to-end under `vite dev`, including a live dev-email sign-in with a session
 cookie back and the allowlist correctly rejecting a non-allowlisted email.
 
 ## Server functions — isolate them
@@ -53,7 +57,7 @@ them in sync), not the v3 API most examples online show:
   Access via `yield* Self` or `Self.use(fn)` / `Self.useSync(fn)`.
 - `@effect/sql-drizzle` has no v4 build — `Database` (`src/server/db/service.ts`) is a
   plain `Context.Service` wrapping `drizzle-orm/bun-sqlite` directly, not `@effect/sql`.
-- Errors are `Schema.TaggedErrorClass`, not `Schema.TaggedError`.
+- Errors are `Schema.TaggedError`.
 - Shelling out (see `scripts/better-auth/generate.ts`) uses
   `effect/unstable/process` (`ChildProcess` + `ChildProcessSpawner`), provided via
   `BunServices.layer` from `@effect/platform-bun` — v3's `Command` module moved here.
