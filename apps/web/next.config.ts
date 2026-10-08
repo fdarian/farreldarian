@@ -1,25 +1,18 @@
 import { realpathSync } from 'node:fs'
 import { createRequire } from 'node:module'
-import { dirname, isAbsolute, relative, resolve, sep } from 'node:path'
+import { sep } from 'node:path'
 import type { NextConfig } from 'next/dist/types'
 import { POSTHOG_PROXY_PATH } from './lib/posthog'
 
 const require = createRequire(import.meta.url)
 const nextPackagePath = realpathSync(require.resolve('next/package.json'))
-const repoRoot = realpathSync(resolve(import.meta.dirname, '../..'))
-
-const commonAncestor = (directory: string, path: string): string => {
-	const offset = relative(directory, path)
-	if (offset !== '..' && !offset.startsWith(`..${sep}`) && !isAbsolute(offset))
-		return directory
-	return commonAncestor(dirname(directory), path)
-}
+const nextPathSegments = nextPackagePath.split(sep)
+const linksIndex = nextPathSegments.indexOf('links')
+// Absent with a project-local store (e.g. CI), where no extra root is needed.
+const pnpmGlobalStore =
+	linksIndex === -1 ? null : nextPathSegments.slice(0, linksIndex).join(sep)
 
 const config: NextConfig = {
-	turbopack: {
-		/** Turbopack can't resolve next in pnpm's global store outside its root. Remove after https://github.com/vercel/next.js/pull/98003 ships and Next is upgraded. */
-		root: commonAncestor(repoRoot, nextPackagePath),
-	},
 	reactStrictMode: true,
 	cacheComponents: true,
 	cacheLife: {
@@ -32,6 +25,11 @@ const config: NextConfig = {
 	partialPrefetching: true,
 	experimental: {
 		useTypeScriptCli: true,
+		// pnpm's global virtual store symlinks node_modules to a directory outside
+		// the project root, which Turbopack won't follow unless it's a known root.
+		...(pnpmGlobalStore && {
+			turbopackAdditionalRoots: { pnpmGlobalStore: { path: pnpmGlobalStore } },
+		}),
 	},
 	// posthog-js posts events to a trailing-slash path (`/e/`). Next's default
 	// trailing-slash redirect runs before `beforeFiles` rewrites and would
