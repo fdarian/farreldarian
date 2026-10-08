@@ -7,3 +7,8 @@ allowBuilds:
   esbuild: false
   msgpackr-extract: false
   sharp: false
+minimumReleaseAgeExclude:
+  - '@effect/platform-bun@4.0.2'
+  - '@effect/platform-node-shared@4.0.2'
+  - '@effect/sql-sqlite-bun@4.0.2'
+  - effect@4.0.2
